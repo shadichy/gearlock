@@ -1,0 +1,20 @@
+#!/bin/bash
+PATH="/bin:/sbin:/usr/local/bin:/usr/bin:system/bin:/system/xbin:/system/vendor/bin"
+function printSplash(){
+	clear
+	echo -e "\033[$(( ($(tput lines) * 15) / 100 ))B"
+	co="$(tput cols)"
+	while IFS= read -r line; do
+		printf "%*s\n" $(( (${#line} + co) / 2)) "$line"
+	done < "/usr/share/gearlock/core/interface/assets/splash"
+}
+
+case "$1" in
+	-v|--version)
+		cat /usr/share/gearlock/core/version 
+	;;
+	*)
+		test "$(tput cols)" -gt "80" && printSplash
+		gearlock-post
+	;;
+esac

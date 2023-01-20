@@ -1,0 +1,85 @@
+#!/bin/bash
+
+EXEC_NAME="${0##*/}"
+
+install_gxpm() {
+	shopt -s nocasematch
+	case "$1" in
+	*.gxp | *.gxpm | *.gxp.* | *.gxpm.*) "$CORE"/gxpm/install "$1" ;;
+	*.zip | *.gxzip) "$CORE"/gxpm/install-zip "$1" ;;
+	*)
+		geco "$EXEC_NAME: Unsupported file format .${1#*.}"
+		printUsage
+		exit 1
+		;;
+	esac
+}
+
+uninstall_gxpm() { "$CORE"/gxpm/uninstall "$1"; }
+
+printUsage() { geco "
+GearLock cli package & extension manager
+
+Usage:    $EXEC_NAME <operation> <file-name>
+
+Examples: $EXEC_NAME -i /path/to/gearlock_package.gxp        # Installing regular gearlock package/extension
+          $EXEC_NAME -i /path/to/flashable_zip.zip           # Installing flashable zips
+          $EXEC_NAME -u <package name>                       # To uninstall a gearlock package or open uninstaller prompt in cli (Not implemented yet)
+          
+Operations:
+
+     -i, --install
+     -u, --uninstall
+
+Supported file types:
+
+     GearLock packages & extensions:     .gxp, .gxpm, .gxp.tar.*,...
+     Flashable zips:                     .zip, .gxzip
+     
+Informative output:
+
+     -h,  --help         Print this help message
+
+GXPM is a part of GearLock
+For more information & bugreports visit https://supreme-gamers.com/gearlock
+"; }
+
+case "$1" in
+-v | --version)
+	cat /usr/share/gearlock/core/version
+	exit 0
+	;;
+-h | --help)
+	printUsage
+	exit 0
+	;;
+-i | --install) JOB="i" ;;
+-u | --uninstall) JOB="u" ;;
+*)
+	geco "$EXEC_NAME: No input was provided"
+	printUsage
+	exit 1
+	;;
+esac
+
+shift
+
+. /usr/local/bin/fetch || exit 1
+. /usr/local/bin/fetch.in || exit 1
+export IT="${DEFAULT_THEME:="metro"}"
+lock
+
+case "$JOB" in
+i) for pkg in "$@"; do
+	if [ -e "$pkg" ]; then
+		install_gxpm "$pkg"
+	elif [ "$pkg" ]; then
+		echo "Finding package $pkg online ..."
+	else
+		geco "$EXEC_NAME: File name/path $pkg provided is invalid.\nTry \`$EXEC_NAME --help\` for more info"
+		printUsage
+		exit 1
+	fi
+done ;;
+u) for pkg in "$@"; do uninstall_gxpm "$pkg"; done ;;
+esac

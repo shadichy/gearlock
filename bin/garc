@@ -1,2 +1,0 @@
-#!/gearlock/bin/bash
-/gearlock/lib/garc/garc "$@"

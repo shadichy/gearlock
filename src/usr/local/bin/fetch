@@ -1,0 +1,195 @@
+### Setup environment
+# Ensure we are root user
+test -z "$RECOVERY" && test -z "$GDEBUG" && test "$(whoami)" != "root" && exit 1
+
+# Define functions
+function cmdline(){
+	awk -F"${1}=" '{print $2}' /proc/cmdline | cut -d' ' -f1 2>/dev/null
+}
+
+function fetch_bootimage(){
+	cKernel="$(uname -r)"
+	BIMGVAR="$(find "$GRROOT" -maxdepth 1 ! -name '___header___' ! -name '*.img' \
+							! -name '*.sfs' ! -name 'gearlock' -type f \
+								| xargs grep -l "$cKernel" | head -n1 | sed "s|$GRROOT_DIR||")"
+	unset cKernel
+}
+
+# Export everything
+set -a
+
+# Initialize some pre-environment vars
+ME="AXON"
+DATA_DIR="/data"
+SYSTEM_DIR="/system"
+
+if test -d "$SYSTEM_DIR" && test -d "$DATA_DIR" && test -z "$RECOVERY"; then
+	ANDROID_ROOT="$SYSTEM_DIR" ANDROID_DATA="$DATA_DIR"
+else
+	ANDROID_ROOT="/" ANDROID_DATA="/gearload/tmp"
+fi
+
+# Set PATH
+PATH="/bin:/sbin:/usr/local/bin:/usr/bin:/usr/sbin:$SYSTEM_DIR/bin:$SYSTEM_DIR/xbin:\
+$SYSTEM_DIR/vendor/bin:/apex/com.android.runtime/bin:/apex/com.android.art/bin"
+
+# Set GHOME
+GHOME="$(
+	if test -d "$SYSTEM_DIR/ghome"; then
+		echo "$SYSTEM_DIR/ghome"
+	else
+		echo "$DATA_DIR/ghome"
+	fi
+)"
+# HOME="$GHOME"
+
+# Start Initializing core variables
+BIMGVAR="$(cmdline BOOT_IMAGE)"
+SRCVAR="$(cmdline SRC)"
+EFIROOT="/boot/efi"
+GRLBASE="/"
+GTMP="$GRLBASE/tmp"
+GRROOT_DIR="${GRLBASE}/boot"
+GRROOT="/"
+ckdirex "$GRROOT/gearload" 777 # Ensure gearload dir existence
+
+# Detect boot_image
+if test -s "$GTMP/kernel_image"; then
+	KERNEL_IMAGE="$(< "$GTMP/kernel_image")"
+else
+	test -z "$BIMGVAR" && fetch_bootimage # Try to blindly define boot_image when no cmdline is available
+	if grep -iq "efi" /proc/cmdline && test -n "$BIMGVAR"; then # When we have efi BIOS
+		PEN_VAR="$(find "$EFIROOT" -maxdepth 4 -ipath "*${BIMGVAR}" | head -n1)"
+		if test -z "$PEN_VAR" && test -e "$GRROOT/${BIMGVAR##*/}"; then
+			KERNEL_IMAGE="$GRROOT/${BIMGVAR##*/}"
+		else
+			KERNEL_IMAGE="$PEN_VAR"
+		fi
+		unset PEN_VAR
+	else
+		KERNEL_IMAGE="$GRROOT/${BIMGVAR##*/}"
+	fi
+	KERNEL_IMAGE="$(readlink -f "$KERNEL_IMAGE")"
+	echo "$KERNEL_IMAGE" > "$GTMP/kernel_image"
+	
+fi
+
+# Ensure ghome file hierarchy
+test ! -d "$GHOME" && {
+		test -e "${vG:="$SYSTEM_DIR/vendor/ghome"}" && garca x -aoa -o"$GHOME" "$vG" || mkdir -p "$GHOME"
+		chmod -Rf 755 "$GHOME"
+} 2>>/dev/null
+{
+	mkdir -p "$GHOME/dependencies" "$GHOME/extensions" "$GHOME/status" "$GHOME/unins" "$GHOME/.local/bin"
+	chmod -f 755 "$GHOME/"* "$GHOME/.local/"*
+} 2>>/dev/null
+
+
+
+# Initialize extra core variables
+if test -n "$GRROOT"; then
+
+	## Detect architecture
+	CPU_ARCH="$(
+		if test -s "$GTMP/cpu_arch"; then
+			echo "$(< "$GTMP/cpu_arch")"
+		else
+			grep -owq 'lm' /proc/cpuinfo && CPU_ARCH="x86_64" || CPU_ARCH="x86"
+			echo "$CPU_ARCH" | tee "$GTMP/cpu_arch"
+		fi
+	)"
+
+	HOST_ARCH="$(
+		if test -s "$GTMP/host_arch"; then
+			echo "$(< "$GTMP/host_arch")"
+		else
+			if test "$CPU_ARCH" == "x86"; then
+				HOST_ARCH="x86"
+			elif test -e "$SYSTEM_DIR/lib64"; then
+				HOST_ARCH="x86_64"
+			elif test -e "$SYSTEM_DIR/lib"; then
+				HOST_ARCH="x86"
+			else
+				HOST_ARCH="$CPU_ARCH"
+			fi
+			echo "$HOST_ARCH" | tee "$GTMP/host_arch"
+		fi
+    )" # FIXME: Any better way ? yes
+    
+	if test -e "$SYSTEM_DIR/build.prop"; then
+		SDK="$(sed -n "s/^ro.build.version.sdk=//p" "$SYSTEM_DIR/build.prop" 2>/dev/null | head -n 1)"
+		case "$SDK" in
+			22) v="5.1" ;;
+			23) v="6.0" ;;
+			24) v="7.0" ;;
+			25) v="7.1" ;;
+			26) v="8.0" ;;
+			27) v="8.1" ;;
+			28) v="9.0" ;;
+			29) v="10.0" ;;
+			30) v="11.0" ;;
+		esac
+		ANDROID_VER="$v"
+		unset v
+	else
+		SDK="26"
+		echo "[!!!] Warning: could not detect SDK, maybe system is missing, assuming SDK as $SDK"
+		ANDROID_VER="8.0" # FIXME: Needs betterment
+	fi
+	
+	CORE="$GRLBASE/usr/share/gearlock/core"
+	DEPDIR="$GHOME/dependencies"
+	STATDIR="$GHOME/status"
+	GRLOAD="$GRROOT/gearload"
+	UNINSDIR="$GHOME/unins"
+	GAPPID="com.supremegamers.gearlock"
+	GBDIR="$GHOME/gearboot"
+	OVERLAYDIR="$GBDIR/overlay"
+	EXTDIR="$GHOME/extensions"
+	HOOKDIR="$GHOME/hook"
+	WORKDIR="$GHOME/workdir"
+	GCOMM="gearlock"
+	YEAR="$(date '+%Y')"
+	DATE="$(date '+%dd-%mmo-%Yy_%Ss-%Mm-%Hh')"
+	LOAD_FROMFS_ROOT="$SYSTEM_DIR/.loadfromfs"
+	GXPM_LOG="$STATDIR/gxpm.log"
+	GRLT="$(
+		mount | grep "$GRROOT_DIR" | grep -q ext4 && echo "$GRROOT/.gxpm" \
+			|| echo "$GHOME/.gxpm"
+	)"
+	KMODDIR="$SYSTEM_DIR/lib/modules"
+	test -e "/sbin/magisk" && MAGISK_COREV="$(magisk -v)"
+	BOOTCOMP="$(
+		test -e "$GTMP/boot-comp" && echo "yes" \
+			|| echo "no"
+	)"
+	GEARLOCK_VER="$(< "$CORE/version")"
+	
+	GEARLOCK_APP="$(
+		ps -fA 2>/dev/null | grep -q "$GAPPID" && echo "yes" \
+			|| echo "no"
+	)" # Detect gearlock app
+	TERMINAL_EMULATOR="$(
+		test "$(fgconsole 2>/dev/null)" == "$(test "$SDK" -gt 29 && echo 1 || echo 7)" \
+			&& test "$BOOTCOMP" == "yes" && echo "yes" || echo "no"
+	)" # Detect termemu
+	SC_SIZE="$(
+		grep -q 'SC_SIZE=' /proc/cmdline && echo "$(($(cmdline SC_SIZE) * 1048576))" \
+			|| echo "5000"
+	)" # SuperCharge expansion size
+fi
+
+# Initialize terminal
+LC_ALL="en_US.UTF-8"
+TERM="linux"
+TERMINFO="$GRLBASE/share/terminfo"
+DIALOGRC="$GRLBASE/etc/dialog.conf"
+: ${GSUDO:="yes"} # To skip invoking su again while being called by gsudo
+
+# Load .gearlockrc
+test ! -e "${GEARLOCK_RC:="$GHOME/.gearlockrc"}" \
+	&& rsync -a "$GRLBASE/share/gearlock/ghome/" "$SYSTEM_DIR/vendor/ghome/" "$GHOME">/dev/null 2>&1
+test -e "$GEARLOCK_RC" && source "$GEARLOCK_RC"
+
+set +a
+:

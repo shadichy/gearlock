@@ -1,4 +1,4 @@
-# Introduction  [![GearLock](https://img.shields.io/badge/GearLock-7.3.15-blue.svg)](https://github.com/AXIM0S/gearlock) [![CI](https://github.com/AXIM0S/gearlock/workflows/CI/badge.svg)](https://github.com/AXIM0S/gearlock/actions) [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org) [![](https://tokei.rs/b1/github/axonasif/gearlock?category=lines)](https://github.com/axonasif/gearlock)
+# Introduction  [![GearLock][def]](https://github.com/AXIM0S/gearlock) [![CI](https://github.com/AXIM0S/gearlock/workflows/CI/badge.svg)](https://github.com/AXIM0S/gearlock/actions) [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org) [![](https://tokei.rs/b1/github/axonasif/gearlock?category=lines)](https://github.com/axonasif/gearlock)
 
 GearLock is a dynamically written bash program focused in performance with the intension of making modifications in android-x86 easier.
 
@@ -10,8 +10,6 @@ GearLock and everything within it are standalone programs and does not need to r
 
 It can be used both GUI and TTY in a user-friendly manner, including advanced CLI usage.
 
-
-
 # Features
 
 <details>
@@ -22,8 +20,8 @@ It can be used both GUI and TTY in a user-friendly manner, including advanced CL
 - Install flashable zip files. (BETA)
 
 - Use RECOVERY-MODE even before your android starts.
-- + MidNight Commander FileManager integration in recovery mode.
-- + Repair corrupted EXT partitions before booting up the OS.
+  - + MidNight Commander FileManager integration in recovery mode.
+  - + Repair corrupted EXT partitions before booting up the OS.
 
 - Decompress / extend the size of your system image
 
@@ -65,16 +63,13 @@ It can be used both GUI and TTY in a user-friendly manner, including advanced CL
   
 </details>
 
-
 # Boot flags
-
 
 You can control the behavior of GearLock early recovery screen with boot-flags.
 There are three kinds of flags you can use.
 
 <details>
   <summary>Spoiler (more details)</summary>
-
 
 - NORECOVERY
 - ALWAYSRECOVERY
@@ -85,7 +80,7 @@ There are three kinds of flags you can use.
 
 This helps you bypass the recovery countdown screen. You can either put `NORECOVERY=1` in your grub-config or make a file named norecovery in your android-x86 partition.
 
-### Grub config example:
+### Grub config example
 
 ```bash
 linux /kernel quiet NORECOVERY=1
@@ -106,7 +101,6 @@ Grub-Flag> `FIXFS=1`
 
 File-Flag> `fixfs`
 
-
 ## NOGFX
 
 When this flag is found, GearLock does not attempt to get the best possible visuals during RECOVERY-MODE. There are some really rare cases among some users in which when GearLock tries to ensure better visuals, kernel panic happens during boot.
@@ -116,24 +110,18 @@ File-Flag> `nogfx`
 
 </details>
 
-
-
 # Flashable ZIP Compatibility
 
 If you want my honest word then you should know that about 99% of the available flashable zips out there will likely fail since they were never made for android-x86 and GearLock has nothing to do about that. In which most of them are flashable-roms which you obviously won't be installing on android-x86. Currently I've had success with OpenGapps and a few other zips. Other than that will surely fail unless the developer itself implements android-x86 support.
-
-
 
 # Pre-baked GearLock
 
 GearLock is being proudly integrated with the following reputed distros:
 
-* BlissOS-x86
-* PhoenixOS DarkMatter
+- BlissOS-x86
+- PhoenixOS DarkMatter
 
 If you're working on a remarkable distro and want to bring GearLock into it then you're welcome :)
-
-
 
 # Development and Contributing
 
@@ -145,16 +133,15 @@ You can start hacking into Gearlock by simply clicking on the button below!
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/axonasif/gearlock)
 
-
 If you want to build GearLock then all you gotta do is run the following command:
 
-* From linux distros
+- From linux distros
 
 > ```bash
 > git clone https://github.com/axonasif/gearlock && cd gearlock && bash makeme
 > ```
 
-* From android-x86 distros (assuming you have GearLock installed)
+- From android-x86 distros (assuming you have GearLock installed)
 
 > ```bash
 > curl -L https://git.io/JO43W -o gearlock.zip
@@ -179,23 +166,19 @@ I would need to setup a complete build system for them, what I've been doing was
 
 I will need a lot of free time to accomplish this since I'm a student, but you can surely expect this in the future.
 
-
-
 # Additional Links
 
-* GearLock dev-kit: https://github.com/AXIM0S/gearlock-dev-kit
-* GearLock core-pkg: https://github.com/AXIM0S/gearlock-core-pkg
-* GearLock mesa-pkg: https://github.com/AXIM0S/gearlock-mesa-pkg
-* GearLock kernel-pkg: https://github.com/AXIM0S/gearlock-kernel-pkg
-* GearLock dev-doc: https://wiki.supreme-gamers.com/gearlock/developer-guide
-
-
+- GearLock dev-kit: <https://github.com/AXIM0S/gearlock-dev-kit>
+- GearLock core-pkg: <https://github.com/AXIM0S/gearlock-core-pkg>
+- GearLock mesa-pkg: <https://github.com/AXIM0S/gearlock-mesa-pkg>
+- GearLock kernel-pkg: <https://github.com/AXIM0S/gearlock-kernel-pkg>
+- GearLock dev-doc: <https://wiki.supreme-gamers.com/gearlock/developer-guide>
 
 # Integration with Android-x86 source
 
 Adaptation for Android-Generic Project was done by: @electrikjesus
 
-### Clone the repo into `vendor/` from your aosp project root.
+### Clone the repo into `vendor/` from your aosp project root
 
 > ```bash
 > git clone https://github.com/AXIM0S/gearlock vendor/gearlock
@@ -212,42 +195,47 @@ Adaptation for Android-Generic Project was done by: @electrikjesus
 > Android-x86:
 `lunch android_x86_64-userdebug && make -j4 iso_img`
 
-
-
 # Credits and thanks
 
 Here I'm trying to list all of the remarkable work by others which has been used to enrich GearLock.
 
 Without their open-minded years of hard work, GearLock wouldn't have been the same.
 
-* The great legendary GNU communtiy for their free and opensource softwares.
-> https://www.gnu.org/software
-* Igor Pavlov (p7zip)
-> http://p7zip.sourceforge.net
-* mcmilk (p7zip zstd plugin)
-> https://github.com/mcmilk/7-Zip-zstd
-* Jack Palevich (Terminal Emulator)
-> https://github.com/jackpal/Android-Terminal-Emulator
-* Roumen Petrov (Better Terminal Emulator, Termoneplus)
-> https://gitlab.com/termapps/termoneplus
+- The great legendary GNU communtiy for their free and opensource softwares.
+
+> <https://www.gnu.org/software>
+
+- Igor Pavlov (p7zip)
+
+> <http://p7zip.sourceforge.net>
+
+- mcmilk (p7zip zstd plugin)
+
+> <https://github.com/mcmilk/7-Zip-zstd>
+
+- Jack Palevich (Terminal Emulator)
+
+> <https://github.com/jackpal/Android-Terminal-Emulator>
+
+- Roumen Petrov (Better Terminal Emulator, Termoneplus)
+
+> <https://gitlab.com/termapps/termoneplus>
 
 ## Also thanks to
 
-* @hmtheboy154 (Contibutor)
-* @SGNight (Contibutor)
-* @electrikjesus (Contributor)
-* Mido Fayad (Contibutor & Donator)
-* Ahmad Moemen (Contibutor)
-* Diaz (Donator)
-* rk (Donator)
-* https://github.com/termux/termux-packages
-* https://github.com/opsengine/cpulimit
-* https://github.com/landley/toybox
-* https://github.com/osospeed/ttyecho
-* http://e2fsprogs.sourceforge.net
-* https://github.com/arter97/resetprop
-
-
+- @hmtheboy154 (Contibutor)
+- @SGNight (Contibutor)
+- @electrikjesus (Contributor)
+- Mido Fayad (Contibutor & Donator)
+- Ahmad Moemen (Contibutor)
+- Diaz (Donator)
+- rk (Donator)
+- <https://github.com/termux/termux-packages>
+- <https://github.com/opsengine/cpulimit>
+- <https://github.com/landley/toybox>
+- <https://github.com/osospeed/ttyecho>
+- <http://e2fsprogs.sourceforge.net>
+- <https://github.com/arter97/resetprop>
 
 # Copyright and License
 
@@ -270,3 +258,6 @@ This project is [GPL-2.0](https://github.com/AXIM0S/gearlock/blob/main/LICENSE) 
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ```
+
+
+[def]: https://img.shields.io/badge/GearLock-7.3.15-blue.svg
