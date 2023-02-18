@@ -1,43 +1,47 @@
-#!/bin/sh
+#!/gearlock/bin/bash
 
-PATH="/gearlock:/gearlock/bin:/bin:/sbin:/usr/local/bin:/usr/bin:/system/bin:/system/xbin:/system/vendor/bin";
+PATH="/gearlock:/gearlock/bin:/bin:/sbin:/usr/local/bin:/usr/bin:/system/bin:/system/xbin:/system/vendor/bin"
 EFIROOT="/gearlock/boot/efi"
 
-mount.init(){
+mount.init() {
 	# REMOUNT
 	{
 		for mp in /android/system /android/data /mnt; do
 			mount -o rw,remount "$mp"
 		done
-	}>/dev/null 2>&1
-	
+	} >/dev/null 2>&1
+
 	# BIND
-	test ! -e /s && mv /system /s
-	! mountpoint -q /gearlock/gearroot && mount --bind /mnt /gearlock/gearroot
-	! mountpoint -q /gearlock/boot && mount --bind /mnt/"$SRC"/boot /gearlock/boot
-	! mountpoint -q /data && mkdir -p /data && mount --bind /android/data /data
-	! mountpoint -q /system && mkdir -p /system && mount --bind /android/system /system
+	[ -e /s ] || mv /system /s
+	mountpoint -q /gearlock/gearroot || mount --bind /mnt /gearlock/gearroot
+	mountpoint -q /gearlock/boot || mount --bind /mnt/"$SRC"/boot /gearlock/boot
+	mountpoint -q /data || mount --bind /android/data /data
+	mountpoint -q /system || mount --bind /android/system /system
 
 	# EFIROOT
-	if grep -iq "efi" /proc/cmdline && test ! -d "$EFIROOT"; then
-		mkdir "$EFIROOT"
-		for guess in /dev/[hms][dmr][a-z] /dev/mmcblk[0-9] /dev/nvme[0-9]n[0-9]; do
-			for device in "${guess[@]}"; do
-				test -e "$device" && WV="$(parted "$device" print)" && echo -e "$WV" | grep -Iq "gpt" \
-				&& NO="$(echo -e "$WV" | grep -I "boot" | awk '{print $1}')" && test "0$NO" -gt "0" \
-				&& mount -o rw,noatime "$device$NO" "$EFIROOT" && chmod 755 "$EFIROOT" && break
-			done
-		done
-	fi
+	grep -iq "efi" /proc/cmdline && [ ! -d "$EFIROOT" ] && return
+
+	mkdir "$EFIROOT"
+	for device in /dev/[hmnsv][dmrv][a-z] /dev/xvd[a-z] /dev/nvme[0-9]n[0-9] /dev/mmcblk[0-9]; do
+		# for device in "${guess[@]}"; do
+		test -e "$device" &&
+			WV="$(parted "$device" print)" &&
+			echo -e "$WV" | grep -Iq "gpt" &&
+			NO="$(echo -e "$WV" | grep -I "boot" | awk '{print $1}')" &&
+			test "0$NO" -gt "0" &&
+			mount -o rw,noatime "$device$NO" "$EFIROOT" &&
+			chmod 755 "$EFIROOT" &&
+			break
+		# done
+	done
 }
 
-mount.android(){
+mount.android() {
 	# Load vendor data & sdcard mount functions
 	. /scripts/*mount*
 
 	# Define functions
-	remount_rw()
-	{
+	remount_rw() {
 		mount -o remount,rw foo /mnt
 	}
 
@@ -79,14 +83,19 @@ mount.android(){
 
 	fi
 
-	cd "$origPWD"; { mount_data; mount_sdcard; }>/dev/null 2>&1; cd /; mount.init;:
+	cd "$origPWD"
+	{
+		mount_data
+		mount_sdcard
+	} >/dev/null 2>&1
+	cd /
+	mount.init
+	:
 }
 
 test -n "$RECOVERY" && {
 	case "$1" in
-		"-i"|"--init") mount.init
-		;;
-		"-a"|"--android") mount.android
-		;;
+	"-i" | "--init") mount.init ;;
+	"-a" | "--android") mount.android ;;
 	esac
 }

@@ -1,169 +1,148 @@
-#!/bin/sh
+#!/gearlock/bin/bash
+
+OROOT="$(readlink -f "/mnt/$SRC")"
 
 # Define vars
 export TERM="linux" \
 	LC_ALL="en_US.UTF-8" \
 	DIALOGRC="/etc/dialog.conf" \
-	PATH="/gearlock:/gearlock/bin:/bin:/sbin:/usr/local/bin:/usr/bin:/system/bin:/system/xbin:/system/vendor/bin";
-export OROOT="$(readlink -f "/mnt/$SRC")" \
+	PATH="/gearlock:/gearlock/bin:/bin:/sbin:/usr/local/bin:/usr/bin:/system/bin:/system/xbin:/system/vendor/bin" \
+	LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-"/lib"}:/gearlock/lib" \
 	RECOVERY_LOADER="$OROOT/___header___" \
 	LOAD_FROMFS_ROOT="/android/system/.loadfromfs" \
-	SWITCH_DIR="/android/gearlock"
+	SWITCH_DIR="/android/gearlock" \
+	OROOT
+
 : "${SC_SIZE:="5000"}"
 
 # Initialize required mountpoints
 gearmount -i
 
 # Define functions
-get_dev(){
-	echo "while read dev; do case \$dev in $(grep -E "$1" /lib/modules/"$(uname -r)"/modules.alias | sed -n 's/^alias  *\([^ ]*\)  *\(.*\)/\1)echo -n \"\2 \";;/p'| sed -e '/brcmfmac/d' -e 's|))|)|g' -e 's|(||g') esac; done" > "${tmp:=/gearlock/tmp/getdev}" && chmod 777 "$tmp" && grep -h 'MODALIAS' /sys/bus/*/devices/*/uevent | sed 's/^MODALIAS=//' | awk '!seen[$0]++' | $tmp && rm -f "$tmp"
+get_dev() {
+	echo "while read dev; do case \$dev in $(grep -E "$1" /lib/modules/"$(uname -r)"/modules.alias | sed -n 's/^alias  *\([^ ]*\)  *\(.*\)/\1)echo -n \"\2 \";;/p' | sed -e '/brcmfmac/d' -e 's|))|)|g' -e 's|(||g') esac; done" >"${tmp:=/gearlock/tmp/getdev}" && chmod 777 "$tmp" && grep -h 'MODALIAS' /sys/bus/*/devices/*/uevent | sed 's/^MODALIAS=//' | awk '!seen[$0]++' | $tmp && rm -f "$tmp"
 }
 
-load_dri(){
-	test "$AUTO_LOAD" == "old" && return 0 # Ignore when AUTO_LOAD is passed
-	
-	checkFail(){
+load_dri() {
+	[ "$AUTO_LOAD" = "old" ] && return 0 # Ignore when AUTO_LOAD is passed
+	[ "$RECOVERY" ] || return 0          # Only run when RECOVERY is passed or present
+
+	checkFail() {
 		test ! -e "/sys/module/atkbd" && test ! -e "/sys/module/hid_apple" && dialog --infobox "\n   Failed to initialize input device" 5 45 && sleep 2
 	}
-	
-	test -e "$OROOT/norecovery" || test -n "$NORECOVERY" && return 0 # Ignore when NORECOVERY is passed or present
-		
-	if test -e "${kd:="/system/lib/modules/$(uname -r)/kernel/drivers"}/input/keyboard/atkbd.ko" || test -e "$kd/hid/hid-apple.ko"; then
-		{
-			modprobe -a "$(get_dev 'atkbd|hid_apple')"
-			test ! -e "$OROOT/nogfx" && test -z "$NOGFX" \
-			&& modprobe -a "$(get_dev 'i915|amdgpu|radeon|nouveau|virtio_gpu')"
-		}>/dev/null 2>&1
-		checkFail
+
+	kd=${kd:-"/system/lib/modules/$(uname -r)/kernel/drivers"}
+	if test -e "$kd/input/keyboard/atkbd.ko" || test -e "$kd/hid/hid-apple.ko"; then
+		modprobe -a "$(get_dev 'atkbd|hid_apple')" 2>&1
+		! { [ -e "$OROOT/nogfx" ] || [ "$NOGFX" ]; } &&
+			modprobe -a "$(get_dev 'i915|amdgpu|radeon|nouveau|virtio_gpu')" 2>&1
 	elif [ -e "$RECOVERY_LOADER" ]; then
-		insmod "$RECOVERY_LOADER">/dev/null 2>&1
-		checkFail
-	else
-		checkFail
+		insmod "$RECOVERY_LOADER" >/dev/null 2>&1
 	fi
-		setfont /gearlock/share/terminfo/r/rxvt32-asm && setterm --cursor off
-		return 0
+	checkFail
+	setfont /gearlock/usr/share/terminfo/r/rxvt32-asm && setterm --cursor off
+	return 0
 }
 
-gpower(){
+gpower() {
 	# sync disks first
-	echo s > /proc/sysrq-trigger 
-	
-	if [ "$1" = "poweroff" ]; then
-		echo o > /proc/sysrq-trigger
-	elif [ "$1" = "reboot" ]; then
-		echo b > /proc/sysrq-trigger
-	fi
+	echo s >/proc/sysrq-trigger
+
+	case "$1" in
+	poweroff) : "o" ;;
+	reboot) : "b" ;;
+	*) : "" ;;
+	esac
+	local sig=$_
+	[ "$sig" ] && echo "$sig" >/proc/sysrq-trigger
+
 	exit 0
 }
 
-boot_os(){
-	
+boot_os() {
+
 	# Re-initialize terminal
-	setfont /gearlock/share/terminfo/c/cons16-asm
+	setfont /gearlock/usr/share/terminfo/c/cons16-asm
 	setterm --cursor on
-	
+
 	# After recovery countdown START
 	print_ran_header
-	test -e "$OROOT/old.system" && echo -e '\n + Old system files found, removing it ...' && rm -rf "$OROOT/old.system" # Check for old system
-	
-	test -n "$FIXFS" || test -e "$OROOT/fixfs" && fixfs # FIXFS trigger
-	
+	[ -e "$OROOT/old.system" ] &&
+		echo -e '\n + Old system files found, removing it ...' &&
+		rm -rf "$OROOT/old.system" # Check for old system
+
 	# Check for supercharge
-	test -z "$NOSC" && test ! -e "$OROOT/nosc" && ls "$OROOT/system."*>/dev/null 2>&1 \
-		&& test "$(stat -L --printf="%s" "$(find "$OROOT" -maxdepth 1 -type f -iname "system.*" -print -quit)")" -lt "$((SC_SIZE * 1048576))" \
-			&& sudo gearlock-cli supercharge
-	
+	! { [ "$NOSC" ] || [ -e "$OROOT/nosc" ]; } &&
+		ls "$OROOT/system."* >/dev/null 2>&1 &&
+		[ "$(
+			stat -L --printf="%s" "$(
+				find "$OROOT" -maxdepth 1 -type f -iname "system.*" -print -quit
+			)"
+		)" -lt "$((SC_SIZE * 1048576))" ] &&
+		init-chroot gearlock-cli supercharge
+
 	# Start gearboot and android init hooking
 	gearboot s0 2>&1
-	{
-		if test -e /android/init.rc; then
-			initrc="/android/init.rc"
-		elif test -e /android/system/etc/init/hw/init.rc; then
-			initrc="/android/system/etc/init/hw/init.rc"
-		fi
-		
-		if test -n "$initrc"; then
-			! grep -q '/gearlock/etc/gearinit.rc' "$initrc" && {
-				sed -i "s|^import /init.\${ro.hardware}.rc|import /init.\${ro.hardware}.rc\nimport /gearlock/etc/gearinit.rc|" "$initrc"
-				sed -i "s|ghome_dir|$(test -e '/system/ghome' && echo '/system/ghome' || echo '/data/ghome')/.local/bin|g" '/gearlock/etc/gearinit.rc'
-			}
-			
-			! grep -q 'pcspkr' /system/etc/modules.bl* && {
-				for f in /system/etc/modules.bl*; do
-					echo "${f##*.} pcspkr" >> "$f"
-				done
-			}
-			
-			# Safely unmount /system and /data
-			for mp in "system" "data"; do
-				umount -df "/$mp" || umount -l "/$mp"
-			done
-			
-			# Switch gearlock mountpoints
-			mkdir -p "$SWITCH_DIR" 2>/dev/null && {
-				if test -e "$LOAD_FROMFS_ROOT"; then
-					#find "$LOAD_FROMFS_ROOT/tmp" -mindepth 1 -maxdepth 1 | xargs rm -r
-					rm -rf "$LOAD_FROMFS_ROOT/tmp"
-					mv "/gearlock/tmp" "$LOAD_FROMFS_ROOT"
-					mount --bind "$LOAD_FROMFS_ROOT" "$SWITCH_DIR"
-					mount --make-slave "$SWITCH_DIR"
-					i=0
-					for mp in gearroot efiroot; do
-						mountpoint -q "/gearlock/$mp" \
-							&& mount --move "/gearlock/$mp" "$SWITCH_DIR/$mp"
-						i=$(( i + $? ))
-					done
-					test "$i" == 0 && {
-						exec /bin/busybox sh -c '/bin/busybox rm -rf /gearlock/*; /bin/busybox umount -df /gearlock'
-					}
-				else
-					exec /bin/busybox mount --move /gearlock "$SWITCH_DIR"
-				fi
-			}
-		fi
-	} >/dev/null 2>&1
+
+	initrc="/android/init.rc"
+	[ -e $initrc ] || initrc="/android/system/etc/init/hw/init.rc"
+	[ -e $initrc ] || exit 1
+
+	# if test -n "$initrc"; then
+	grep -q '/gearlock/etc/gearinit.rc' "$initrc" || {
+		sed -i "s|^import /init.\${ro.hardware}.rc|import /init.\${ro.hardware}.rc\nimport /gearlock/etc/gearinit.rc|" "$initrc"
+		sed -i "s|ghome_dir|$(test -e '/system/ghome' && echo '/system/ghome' || echo '/data/ghome')/.local/bin|g" '/gearlock/etc/gearinit.rc'
+	}
+
+	grep -q 'pcspkr' /system/etc/modules.bl* || {
+		for f in /system/etc/modules.bl*; do
+			echo "${f##*.} pcspkr" >>"$f"
+		done
+	}
+
+	# Safely unmount /system and /data
+	for mp in "system" "data"; do
+		umount -df "/$mp" || umount -l "/$mp"
+	done
+
+	# Switch gearlock mountpoints
+	mkdir -p "$SWITCH_DIR" 2>/dev/null || exit 1
+	if [ ! -e "$LOAD_FROMFS_ROOT" ]; then
+		exec /bin/busybox mount --move /gearlock "$SWITCH_DIR"
+		exit 0
+	fi
+	#find "$LOAD_FROMFS_ROOT/tmp" -mindepth 1 -maxdepth 1 | xargs rm -r
+	rm -rf "$LOAD_FROMFS_ROOT/tmp"
+	mv "/gearlock/tmp" "$LOAD_FROMFS_ROOT"
+	mount --bind "$LOAD_FROMFS_ROOT" "$SWITCH_DIR"
+	mount --make-slave "$SWITCH_DIR"
+	i=0
+	for mp in gearroot efiroot; do
+		mountpoint -q "/gearlock/$mp" &&
+			mount --move "/gearlock/$mp" "$SWITCH_DIR/$mp"
+		i=$((i + $?))
+	done
+	test "$i" == 0 && {
+		exec /bin/busybox sh -c '/bin/busybox rm -rf /gearlock/*; /bin/busybox umount -df /gearlock'
+	}
 	exit 0
+
 }
 
-tboot_os(){
-	umount /android/data
-	mount -t tmpfs tmpfs /android/data
-	boot_os p
-}
-
-print_ran_header(){
+print_ran_header() {
 	#test -e '/system/etc/hide_me' && return 0
-	clear && echo '  ___________________   _____ __________.____    ________  _________  ____  __.
+	clear
+	cat <<'EOF'
+  ___________________   _____ __________.____    ________  _________  ____  __.
  /  _____/\_   _____/  /  _  \\______   \    |   \_____  \ \_   ___ \|    |/ _|
 /   \  ___ |    __)_  /  /_\  \|       _/    |    /   |   \/    \  \/|      <
 \    \_\  \|        \/    |    \    |   \    |___/    |    \     \___|    |  \
  \______  /_______  /\____|__  /____|_  /_______ \_______  /\______  /____|__ \
         \/        \/         \/       \/        \/       \/        \/        \/
 
-'
+EOF
 
-	quote[0]="-- I destroy my enemies when I make them my friends ... (Abraham Lincoln)"
-	quote[1]="-- Light can not exist without the existence of darkness ... (AXON)"
-	quote[2]="-- You may try to replicate someone, but you can never replicate what he is inside ... (AXON)"
-	quote[3]="-- If fools could fly then the sun would go eclipse ... (Night)"
-	quote[4]="-- Some people act like know-it-all, but deep down they know what they truely are ... (AXON)"
-	quote[5]="-- As things get closer to the light, the shadows get darker ... (AXON)"
-	quote[6]="-- There are more imposters than legit things, maybe that's what helps us define the good ... (AXON)"
-	quote[7]="-- I don’t care that they stole my idea ... I care that they don’t have any of their own ... (Nikola Tesla)"
-	quote[8]="-- Seek knowledge from cradle to the grave ... (Muhammad (PBUH))"
-	quote[9]="-- You must be the change you wish to see in the world ... (Mahatma Gandhi)"
-	quote[10]="-- Slow but Steady wins the race ... (Aesop)"
-	quote[11]="-- When you have exhausted all possibilities remember this you haven't ... (Thomas Edison)"
-	quote[12]="-- Happiness is when Gearlock runs without errors ... (Night)"
-	quote[13]="-- 'Dumbass' is not to describe who with little knowledge but who don't learn ... (Shadichy)"
-
-	echo -e "${quote["${RANDOM: -1}"]}\n\n\n\n++++ Type the word \033[1;33mg\033[0m and press \033[1;32mEnter\033[0m to run \033[1;34mgearlock\033[0m in here.\n++++ Press \033[1;35mAlt + F8\033[0m if you can't type here."
-}
-
-recovery_menu(){
-	init-chroot
-	boot_os p
+	echo -e "$(shuf -n 1 /gearlock/etc/quotes.rc)\n\n\n\n++++ Type the word \033[1;33mg\033[0m and press \033[1;32mEnter\033[0m to run \033[1;34mgearlock\033[0m in here.\n++++ Press \033[1;35mAlt + F8\033[0m if you can't type here."
 }
 
 for s in SIGINT SIGHUP INT SIGTSTP; do
@@ -171,8 +150,14 @@ for s in SIGINT SIGHUP INT SIGTSTP; do
 done
 
 # Check for ALWAYSRECOVERY
-if test -n "$RECOVERY"; then
-	load_dri && recovery_menu
-elif test -n "$FRESHBOOT";then
+if [ "$RECOVERY" ]; then
+	load_dri
+	init-chroot
+	boot_os p
+elif [ "$FRESHBOOT" ]; then
+	umount /android/data
+	mount -t tmpfs tmpfs /android/data
+	boot_os p
+else
 	boot_os
 fi

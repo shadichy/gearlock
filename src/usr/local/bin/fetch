@@ -47,10 +47,12 @@ GHOME="$(
 BIMGVAR="$(cmdline BOOT_IMAGE)"
 SRCVAR="$(cmdline SRC)"
 EFIROOT="/boot/efi"
-GRLBASE="/"
+GRLBASE=/
+[ "$GEARBOOT" ] && GRLBASE=/gearlock
 GTMP="$GRLBASE/tmp"
 GRROOT_DIR="${GRLBASE}/boot"
-GRROOT="/"
+GRROOT=/
+[ "$GEARBOOT" ] && GRROOT=/gearlock
 ckdirex "$GRROOT/gearload" 777 # Ensure gearload dir existence
 
 # Detect boot_image

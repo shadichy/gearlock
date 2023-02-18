@@ -45,7 +45,7 @@ function geco() {
 
 function pause() {
 	test -e "${np:="$GTMP/.nopause"}" && rm -f "$np" && return
-	read -rp "$(geco "\n++ ${@}${_press_enter_} ...")" readEnterKey
+	read -rp "$(geco "\n++ ${*}${_press_enter_} ...")" readEnterKey
 }
 
 function nopause() {
@@ -227,7 +227,7 @@ function chk_ghome() {
 
 function gxpmJob() {
 	local SP_DELAY="${4:-.2}" \
-		SP_STRING="${3:-"-----$(test ${#RANDOM} -lt 5 && echo + || echo = )"}" \
+		SP_STRING="${3:-"-----$(test ${#RANDOM} -lt 5 && echo + || echo '=' )"}" \
 		SP_COLOR=0 \
 		msg="${1:-"Doing something special"}"
 	JOBS+="$2 "
