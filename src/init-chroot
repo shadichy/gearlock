@@ -2,12 +2,7 @@
 
 chrootdir=/gearlock
 
-out() { printf "%s " "$1"; shift; printf "%s\n" "$*"; }
-error() { out "==> ERROR:" "$@"; } >&2
-warning() { out "==> WARNING:" "$@"; } >&2
-msg() { out "==>" "$@"; }
-msg2() { out "  ->" "$@";}
-die() { error "$@"; exit 1; }
+die() { printf "%s %s" "==> ERROR:" "$*"; exit 1; }
 
 chroot_add_mount() { mount "$@" && CHROOT_ACTIVE_MOUNTS="$2 $CHROOT_ACTIVE_MOUNTS"; }
 chroot_if_dir() { [ -d "$1" ] && shift && chroot_add_mount "$@"; return 0; }
@@ -38,5 +33,5 @@ chroot_setup "$chrootdir" || die "failed to setup chroot %s" "$chrootdir"
 
 SHELL=/bin/bash chroot "$chrootdir" /bin/bash -c " \
 echo -e \"nameserver $(getprop net.dns1)\" > /etc/resolv.conf; \
-${*:-/usr/local/bin/g}" || true
+${*:-/usr/local/bin/g}"
 

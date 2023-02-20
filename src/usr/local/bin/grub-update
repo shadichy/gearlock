@@ -1,0 +1,3 @@
+#!/bin/bash
+. /etc/defaults/grub
+grub-mkconfig -o "${GRUB_BOOR_DIR:-"/gearroot/boot"}/grub/grub.cfg"
