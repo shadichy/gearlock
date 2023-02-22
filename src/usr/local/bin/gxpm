@@ -17,7 +17,8 @@ install_gxpm() {
 
 uninstall_gxpm() { "$CORE"/gxpm/uninstall "$1"; }
 
-printUsage() { geco "
+printUsage() {
+	cat <<EOF
 GearLock cli package & extension manager
 
 Usage:    $EXEC_NAME <operation> <file-name>
@@ -42,7 +43,8 @@ Informative output:
 
 GXPM is a part of GearLock
 For more information & bugreports visit https://supreme-gamers.com/gearlock
-"; }
+EOF
+}
 
 case "$1" in
 -v | --version)

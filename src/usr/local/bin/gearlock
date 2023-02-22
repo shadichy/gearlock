@@ -1,6 +1,6 @@
 #!/bin/bash
 PATH="/bin:/sbin:/usr/local/bin:/usr/bin:system/bin:/system/xbin:/system/vendor/bin"
-function printSplash(){
+printSplash(){
 	clear
 	echo -e "\033[$(( ($(tput lines) * 15) / 100 ))B"
 	co="$(tput cols)"
@@ -10,9 +10,7 @@ function printSplash(){
 }
 
 case "$1" in
-	-v|--version)
-		cat /usr/share/gearlock/core/version 
-	;;
+	-v|--version) cat /usr/share/gearlock/core/version ;;
 	*)
 		test "$(tput cols)" -gt "80" && printSplash
 		gearlock-post

@@ -1,16 +1,15 @@
 # Define Functions
-jobEnd(){
-	
-	echo 'geco "--+ Clearing dalvik-cache, it may take a bit long on this bootup"; rm -rf /data/dalvik-cache/*; rm $0' > "$GBDIR/init/ClearDalvikForUnityFix"
+jobEnd() {
+
+	echo 'geco "--+ Clearing dalvik-cache, it may take a bit long on this bootup"; rm -rf /data/dalvik-cache/*; rm $0' >"$GBDIR/init/ClearDalvikForUnityFix"
 	geco "\n+ Successful, please reboot to see changes ..."
-	
+
 }
 
-cleanV8(){
-	for app in /data/app/*
-	do
-  		pkg=$(basename $app)
-  		[ -e "$app/lib/arm64" ] && [ "$(ls $app/lib/ | wc -l)" = "1" ] && echo "$pkg is armv8,it will be removed!" && pm uninstall $(echo $pkg| grep -oE "^[^-]+")
+cleanV8() {
+	for app in /data/app/*; do
+		pkg=$(basename $app)
+		[ -e "$app/lib/arm64" ] && [ "$(ls $app/lib/ | wc -l)" = "1" ] && echo "$pkg is armv8,it will be removed!" && pm uninstall $(echo $pkg | grep -oE "^[^-]+")
 	done
 }
 
@@ -22,27 +21,26 @@ L3="ro.product.cpu.abilist64="
 
 geco "\n++ This fix was discovered by @HmTheBoy154\n"
 geco "What do you want to do ???"
-select opt in "Apply Fix" "Undo Fix" "Back"
-do
-    case $opt in
-    "Apply Fix")
+select opt in "Apply Fix" "Undo Fix" "Back"; do
+	case $opt in
+	"Apply Fix")
 		# Define Line to replace
 		dialog --yesno "Unity fix will corrupt all arm64 apps/games\nSo its recomended to remove them\nDo you want to?" 0 0 && cleanV8
 		gslr $GETT "$L1" "ro.product.cpu.abilist=x86_64,x86,armeabi-v7a,armeabi"
 		gslr $GETT "$L2" "ro.product.cpu.abilist32=x86,armeabi-v7a,armeabi"
 		gslr $GETT "$L3" "ro.product.cpu.abilist64=x86_64"
 		jobEnd
-			;;
-    "Undo Fix")
+		;;
+	"Undo Fix")
 		# Define Line to replace
 		gslr $GETT "$L1" "ro.product.cpu.abilist=x86_64,x86,arm64-v8a,armeabi-v7a,armeabi"
 		gslr $GETT "$L2" "ro.product.cpu.abilist32=x86,armeabi-v7a,armeabi"
 		gslr $GETT "$L3" "ro.product.cpu.abilist64=x86_64,arm64-v8a"
 		jobEnd
-			;;
-    "Back")
+		;;
+	"Back")
 		exit 0
-			;;
-    esac
-    break
-done 
+		;;
+	esac
+	break
+done

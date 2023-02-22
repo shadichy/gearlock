@@ -1,17 +1,17 @@
 export IT="classic"
 
 # Interface functions
-function logo(){
+logo() {
 	gecca "$CORE/interface/assets/classic/header"
 }
 
-function show_header(){
+show_header() {
 	echo -e "${BLUE}\c"
 	"$1"
 	echo -e "${RC}\c"
 }
 
-function show_menu_container(){
+show_menu_container() {
 	echo -e
 	gecpc "Gear It" "@"
 	gecpc "+" "-"
@@ -21,150 +21,133 @@ function show_menu_container(){
 	echo -e
 }
 
-function show_footer(){
+show_footer() {
 	echo -e "${ORANGE}\c"
 	"$1"
 	echo -e "${RC}\c"
 }
 
-function inload_one(){
-	test -n "$1" && "$1"
-}
+inload_one() { test -n "$1" && "$1"; }
 
-function inload_two(){
-	test -n "$1" && "$1"
-}
+inload_two() { test -n "$1" && "$1"; }
 
-function inload_three(){
-	test -n "$1" && "$1"
-}
+inload_three() { test -n "$1" && "$1"; }
 
-function struct_interface_inload(){
+struct_interface_inload() {
 	export src="$1"
 	show_header "$2"
 	show_menu_container "$3"
 	show_footer "$4"
-	inload_one "$5";
+	inload_one "$5"
 	inload_two "$6"
 	inload_three "$7"
 }
 
 # Common
-function com_body(){
+com_body() {
 	i=1 && echo -e
 	while read line; do
 		echo -e "${YELLOW}" && echo [$((i++))]. $line
-	done < "$CORE/${src}/_lang_/_menu_${lang}" > "${t:="$GTMP/_cmenu"}" && gecca "$t" && echo -e "${RC}\n"
+	done <"$CORE/${src}/_lang_/_menu_${lang}" >"${t:="$GTMP/_cmenu"}" && gecca "$t" && echo -e "${RC}\n"
 }
-function com_footer(){
+com_footer() {
 	gecpc "${_footer_items_classicui_}" "_"
 	check_sc && echo -e "\n- ${_supercharging_notice_classicui_}"
 	test -e "$STATDIR/update" && test "$UPDATE_CHECK" != "no" && echo -e "\n${_new_update_notice_classicui}"
 }
 
-function com_sub_footer(){
-	gecpc "${_sub_footer_items_}" "_"
-}
+com_sub_footer() { gecpc "${_sub_footer_items_}" "_"; }
 
-function com_rinput(){
+com_rinput() {
 	echo -e
 	read -n1 -p "$(echo -e "${BGREEN}${_footer_input_prompt_classicui_} >> ${RC}\c")" "c"
 	echo -e
 	case $c in
-		a)
-			geco "${_ui_about_msg_}" && pause
-			;;
-		h)
-			clear && geco "${_ui_help_msg_}" && pause
-			;;
-		d)
-			"$CORE/devz"
-			pause
-			;;
-		r)
-			echo -e "\n+ ${_gearrec_info_}"
-			pause
-			;;
-		u)
-			clear && "$CORE/update"
-			pause
-			;;
-		c)
-			"$CORE/settings"
-			;;
-		s)
-			gstatus
-			pause 
-			;;
-		g)
-			echo -e "\n- ${_googleless_mode_info_}\n"
-			select opt in "Activate it" "Deactivate it" "Exit"; do
-				case $opt in
-				"Activate it")
-					pm disable com.android.vending
-					pm disable com.google.android.gms
-					touch "$GTMP/goolm"
-					;;
-				"Deactivate it")
-					nout pm enable com.android.vending
-					nout pm enable com.google.android.gms
-					nout rm $GTMP/goolm
-					;;
-				"Exit")
-					break
-					;;
-				esac
+	a) geco "${_ui_about_msg_}" && pause ;;
+	h) clear && geco "${_ui_help_msg_}" && pause ;;
+	d)
+		"$CORE/devz"
+		pause
+		;;
+	r)
+		echo -e "\n+ ${_gearrec_info_}"
+		pause
+		;;
+	u)
+		clear && "$CORE/update"
+		pause
+		;;
+	c) "$CORE/settings" ;;
+	s)
+		gstatus
+		pause
+		;;
+	g)
+		echo -e "\n- ${_googleless_mode_info_}\n"
+		select opt in "Activate it" "Deactivate it" "Exit"; do
+			case $opt in
+			"Activate it")
+				pm disable com.android.vending
+				pm disable com.google.android.gms
+				touch "$GTMP/goolm"
+				;;
+			"Deactivate it")
+				nout pm enable com.android.vending
+				nout pm enable com.google.android.gms
+				nout rm $GTMP/goolm
+				;;
+			"Exit")
 				break
-			done
-			echo -e "\n+ Done!"
+				;;
+			esac
+			break
+		done
+		echo -e "\n+ Done!"
+		pause
+		;;
+	x)
+		echo -e "\nSee ya later!"
+		sleep 3
+		exit_grl
+		;;
+	*)
+		if test -z "$c"; then
+			echo -e "${_noinput_classicui_} ..."
 			pause
-			;;
-		x)
-			echo -e "\nSee ya later!"
-			sleep 3
-			exit_grl
-			;;
-		*)
-			if test -z "$c"; then
-				echo -e "${_noinput_classicui_} ..."
-				pause
-			else
-				if test -e "$CORE/$src/$c"; then
-					clear && "$CORE/$src/$c"
-				else
-					echo -e "\n${_wronginput_classicui_} ¯\_(ツ)_/¯"
-					pause
-				fi
-			fi
+		elif test -e "$CORE/$src/$c"; then
+			clear && "$CORE/$src/$c"
+		else
+			echo -e "\n${_wronginput_classicui_} ¯\_(ツ)_/¯"
+			pause
+		fi
+		;;
 	esac
 }
-function com_sub_rinput(){
+com_sub_rinput() {
 	echo -e
 	read -p "${_footer_input_prompt_classicui_} >> " c
 	echo -e
-	case $c in
-		b)
-			exit 0
-			;;
-		*)
-			if test -z "$c"; then
-				echo -e "${_noinput_classicui_} ..."
-				pause
+
+	[ "$c" = b ] && exit 0
+
+	if test -z "$c"; then
+		echo -e "${_noinput_classicui_} ..."
+		pause
+	else
+		if test -e "$CORE/$src/$c"; then
+			clear && "$CORE/$src/$c"
+			pause
 		else
-			if test -e "$CORE/$src/$c"; then
-				clear && "$CORE/$src/$c"
-				pause
-			else
-				echo -e "${_wronginput_classicui_} ¯\_(ツ)_/¯"
-				pause
-			fi
+			echo -e "${_wronginput_classicui_} ¯\_(ツ)_/¯"
+			pause
 		fi
-	esac
+	fi
+
 }
 
 # Export fun
 export -f logo show_header show_menu_container show_footer inload_one inload_two \
-		inload_three struct_interface_inload com_body com_footer com_sub_footer com_sub_rinput
+	inload_three struct_interface_inload com_body com_footer com_sub_footer com_sub_rinput
 
 # Runtime
 struct_interface main.src logo com_body com_footer com_rinput

@@ -1,8 +1,8 @@
 #!/bin/sh
 VERSION="0.6"
 
-function print_info(){
-	echo "
+print_info() {
+	cat <<EOF
 Gsudo $VERSION | Copyright (c) 2020 AXON | supreme-gamers.com
 The android_x86 tty actions are done over the \`root:shell' usergroup.
 Which causes some executable binaries to be working in a wrong manner even while it's still the root user partially.
@@ -21,30 +21,25 @@ Example: ${0##*/} mkdir /data/new
 
 Gsudo is a part of GearLock
 For more information & bugreports visit https://supreme-gamers.com/gearlock
-	"
+EOF
+	exit 0
 }
 
 case "$1" in
-	-h|--help)
-		print_info
-		;;
-	-v|--version)
-		echo "$VERSION"
-		;;
-	*)
-		# Ensure we have su binary
-		! command -v su 1>/dev/null && {
-			echo "Error: su binary is not present" && exit 1
-		}
-		suargs=$(printf '%q ' "$@")
-		if test -n "${suargs}"; then
-			if test -z "$RECOVERY" && test -z "$GSUDO"; then
-				GSUDO="yes" su -c "PATH=$PATH; TERM=$TERM; bash -c \"$suargs\""
-			else
-				export GSUDO="yes" && "$@"
-			fi
-		else
-			print_info
-		fi
+-h | --help) print_info ;;
+-v | --version) echo "$VERSION" ;;
+*)
+	# Ensure we have su binary
+	! command -v su 1>/dev/null && {
+		echo "Error: su binary is not present" && exit 1
+	}
+	suargs=$(printf '%q ' "$@")
+	[ -z "${suargs}" ] && print_info
+
+	if test -z "$RECOVERY" && test -z "$GSUDO"; then
+		GSUDO="yes" su -c "PATH=$PATH; TERM=$TERM; bash -c \"$suargs\""
+	else
+		export GSUDO="yes" && "$@"
+	fi
 	;;
 esac

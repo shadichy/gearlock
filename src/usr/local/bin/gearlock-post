@@ -21,21 +21,15 @@ else
 	while true; do
 		cmd=(dialog --keep-tite --cancel-label Exit --menu "${_sel_interface_theme_}" 10 45 10)
 		choices=$("${cmd[@]}" \
-					1 "Metro" \
-					2 "Classic" \
-					3 "Infinity (Upcoming)" 2>&1 >/dev/tty)
+			1 "Metro" \
+			2 "Classic" \
+			3 "Infinity (Upcoming)" 2>&1 >/dev/tty)
 		test "$?" == 1 && exit_grl
 		for choice in $choices; do
 			case $choice in
-				1)
-					. "$CORE/interface/metro"
-				;;
-				2)
-					. "$CORE/interface/classic"
-				;;
-				3)
-					msgbox "Spoiler" "Ta-da" "\n${_infinityUi_spoiler_}" && break
-				;;
+			1) . "$CORE/interface/metro" ;;
+			2) . "$CORE/interface/classic" ;;
+			3) msgbox "Spoiler" "Ta-da" "\n${_infinityUi_spoiler_}" && break ;;
 			esac
 		done
 	done

@@ -51,12 +51,8 @@ for ver in $buildver; do
     OS="Prime OS $(prop "$ver")"
     break
     ;;
-  ro.lineage.version*)
-    OS="Lineage OS $(prop "$ver")"
-    ;;
-  *)
-    OS="AOSP $ANDROID_VER $(prop "$(grep "ro.build.flavor=" $buildprop)")"
-    ;;
+  ro.lineage.version*) OS="Lineage OS $(prop "$ver")" ;;
+  *) OS="AOSP $ANDROID_VER $(prop "$(grep "ro.build.flavor=" $buildprop)")" ;;
   esac
 done
 unset IFS

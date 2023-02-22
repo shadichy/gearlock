@@ -13,7 +13,6 @@ export PATH="/bin:/system/bin:/system/xbin:/system/vendor/bin"
 # The : is required for some old versions of csh.
 # On Ultrix, /bin/sh is too buggy, change the first line to: #!/bin/sh5
 
-
 # Copyright (C) 1998, 2002, 2004, 2006-2007, 2010-2018 Free Software
 # Foundation, Inc.
 # Copyright (C) 1993 Jean-loup Gailly
@@ -59,11 +58,23 @@ decomp=0
 res=0
 while :; do
   case $1 in
-  -d) decomp=1; shift;;
-  --h*) printf '%s\n' "$usage"   || exit 1; exit;;
-  --v*) printf '%s\n' "$version" || exit 1; exit;;
-  --) shift; break;;
-  *) break;;
+  -d)
+    decomp=1
+    shift
+    ;;
+  --h*)
+    printf '%s\n' "$usage" || exit 1
+    exit
+    ;;
+  --v*)
+    printf '%s\n' "$version" || exit 1
+    exit
+    ;;
+  --)
+    shift
+    break
+    ;;
+  *) break ;;
   esac
 done
 
@@ -81,10 +92,10 @@ trap 'res=$?
 
 mktemp_status=
 
-for i do
+for i; do
   case $i in
-  -*) file=./$i;;
-  *)  file=$i;;
+  -*) file=./$i ;;
+  *) file=$i ;;
   esac
   if test ! -f "$file" || test ! -r "$file"; then
     res=$?
@@ -107,13 +118,15 @@ for i do
   fi
   case /$file in
   */basename | */bash | */cat | */chmod | */cp | \
-  */dirname | */expr | */gzip | \
-  */ln | */mkdir | */mktemp | */mv | */printf | */rm | \
-  */sed | */sh | */sleep | */test | */tail)
-    printf >&2 '%s\n' "$0: $i might depend on itself"; continue;;
+    */dirname | */expr | */gzip | \
+    */ln | */mkdir | */mktemp | */mv | */printf | */rm | \
+    */sed | */sh | */sleep | */test | */tail)
+    printf >&2 '%s\n' "$0: $i might depend on itself"
+    continue
+    ;;
   esac
 
-  dir=`dirname "$file"` || dir=$TMPDIR
+  dir=$(dirname "$file") || dir=$TMPDIR
   test -d "$dir" && test -w "$dir" && test -x "$dir" || dir=/gearlock/tmp
   test -n "$tmp" && rm -f "$tmp"
   if test -z "$mktemp_status"; then
@@ -121,11 +134,11 @@ for i do
     mktemp_status=$?
   fi
   case $dir in
-    */) ;;
-    *) dir=$dir/;;
+  */) ;;
+  *) dir=$dir/ ;;
   esac
   if test $mktemp_status -eq 0; then
-    tmp=`mktemp "${dir}gzexeXXXXXXXXX"`
+    tmp=$(mktemp "${dir}gzexeXXXXXXXXX")
   else
     tmp=${dir}gzexe$$
   fi && { cp -p "$file" "$tmp" 2>/dev/null || cp "$file" "$tmp"; } || {
@@ -196,7 +209,7 @@ else
   (exit 127); res=127
 fi; exit $res
 EOF
-    gzip -cv9 "$file") > "$tmp" || {
+      gzip -cv9 "$file") >"$tmp" || {
       res=$?
       printf >&2 '%s\n' "$0: compression not possible for $i, file unchanged."
       continue
@@ -205,16 +218,17 @@ EOF
   else
     # decompression
     skip=50
-    skip_line=`sed -e 1d -e 2q "$file"`
+    skip_line=$(sed -e 1d -e 2q "$file")
     case $skip_line in
     skip=[0-9] | skip=[0-9][0-9] | skip=[0-9][0-9][0-9])
-      eval "$skip_line";;
+      eval "$skip_line"
+      ;;
     esac
-    case `printf 'X\n' | tail -n +1 2>/dev/null` in
-    X) tail_n=-n;;
-    *) tail_n=;;
+    case $(printf 'X\n' | tail -n +1 2>/dev/null) in
+    X) tail_n=-n ;;
+    *) tail_n= ;;
     esac
-    tail $tail_n +$skip "$file" | gzip -cd > "$tmp" || {
+    tail $tail_n +$skip "$file" | gzip -cd >"$tmp" || {
       res=$?
       printf >&2 '%s\n' "$0: $i probably not in gzexe format, file unchanged."
       continue
@@ -240,4 +254,5 @@ EOF
   }
   tmp=
 done
-(exit $res); exit $res
+(exit $res)
+exit $res

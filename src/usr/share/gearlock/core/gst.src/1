@@ -15,10 +15,9 @@ fi
 
 DESTP="/system/xbin"
 # Define Functions
-function main(){
+main() {
 	local SDIR="$DEPDIR/su-handler"
-	select opt in "SuperSU" "Magisk-Su"
-	do
+	select opt in "SuperSU" "Magisk-Su"; do
 		case $opt in
 		"SuperSU")
 			nout gclone "$SDIR/supersu.img" "$GRROOT/ramdisk.img"
@@ -35,14 +34,15 @@ function main(){
 					ln -sr /data/adb $GRROOT
 				fi
 			fi
-			
+
 			if [ ! -d "/data/data/com.topjohnwu.magisk" ]; then
-				geco "Installing magisk app:\c"; pm -r install $DEPDIR/magisk.apk
+				geco "Installing magisk app:\c"
+				pm -r install $DEPDIR/magisk.apk
 			fi
-				nout gclone $SDIR/magisksu.img $GRROOT/ramdisk.img
-				geco "Done !"
-	#         geco "Applying backwards-compatibility for magisksu [This will make magisk support old *supersu only apps* also]"
-	#         sleep 3
+			nout gclone $SDIR/magisksu.img $GRROOT/ramdisk.img
+			geco "Done !"
+			#         geco "Applying backwards-compatibility for magisksu [This will make magisk support old *supersu only apps* also]"
+			#         sleep 3
 			if [ ! -e "$DESTP/dudu" ]; then
 				mv $DESTP/su $DESTP/dudu
 			fi
@@ -53,14 +53,13 @@ function main(){
 }
 
 case "$1" in
-	-pipe)
-		main
-        ;;
-	*)
-		geco "You can switch super-user handler as many time you want ..."
-		geco "Which one do you want to switch to ???"
-		main
-		greboot
-		;;
+-pipe)
+	main
+	;;
+*)
+	geco "You can switch super-user handler as many time you want ..."
+	geco "Which one do you want to switch to ???"
+	main
+	greboot
+	;;
 esac
-

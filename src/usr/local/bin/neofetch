@@ -10,9 +10,7 @@ shopt -s nocasematch
 LC_ALL=C
 LANG=C
 export GIO_EXTRA_MODULES=/usr/lib/x86_64-linux-gnu/gio/modules/
-get_os() {
-os=Linux
-}
+get_os() { os=Linux; }
 get_distro() {
 [[ $distro ]] && return
 distro="Android $(getprop ro.build.version.release)"
