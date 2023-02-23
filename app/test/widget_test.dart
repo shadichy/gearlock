@@ -13,11 +13,14 @@ import 'package:gearlock/main.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MediaQuery(
+    await tester.pumpWidget(
+      const MediaQuery(
         data: MediaQueryData(),
         child: MaterialApp(
-            home: Gearlock(
-                appTitle: "[GoogleLTS_xanmod1]_Kernel_5.4.104_sakura"))));
+          home: GearLock(),
+        ),
+      ),
+    );
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);
