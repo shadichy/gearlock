@@ -550,12 +550,22 @@ class _GearLockState extends State<GearLock> {
     // fileList = pkglist;
   }
 
-  int selectedTab = 0;
-  void onItemTapped(int t) {
+  int _selectedTab = 0;
+  bool _visible = true;
+  void onItemTapped(int t) async {
     setState(() {
-      selectedTab = t;
+      _visible = false;
     });
-    scrollController.animateTo(0, duration: const Duration(microseconds: 1), curve: Curves.linear);
+    await Future.delayed(const Duration(milliseconds: 200));
+    scrollController.animateTo(
+      0,
+      duration: const Duration(microseconds: 1),
+      curve: Curves.easeOut,
+    );
+    setState(() {
+      _selectedTab = t;
+      _visible = true;
+    });
   }
 
   @override
@@ -1410,15 +1420,24 @@ class _GearLockState extends State<GearLock> {
       //     ),
       //   ],
       // ),
-      body: ListView.builder(
-        itemCount: (bodyContent[selectedTab].length < 40)
-            ? bodyContent[selectedTab].length
-            : 40,
-        itemBuilder: (context, index) {
-          return bodyContent[selectedTab][index];
-        },
-        physics: const BouncingScrollPhysics(),
-        controller: scrollController,
+      body: AnimatedOpacity(
+        opacity: _visible ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          child: ListView.builder(
+            itemCount: (bodyContent[_selectedTab].length < 40)
+                ? bodyContent[_selectedTab].length
+                : 40,
+            itemBuilder: (context, index) {
+              return bodyContent[_selectedTab][index];
+            },
+            physics: const BouncingScrollPhysics(),
+            controller: scrollController,
+          ),
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -1439,7 +1458,7 @@ class _GearLockState extends State<GearLock> {
             label: 'About',
           ),
         ],
-        currentIndex: selectedTab,
+        currentIndex: _selectedTab,
         selectedFontSize: 12.0,
         unselectedFontSize: 10.0,
         selectedItemColor: const Color(0xff536dfe),
@@ -1447,6 +1466,7 @@ class _GearLockState extends State<GearLock> {
         showUnselectedLabels: true,
         showSelectedLabels: true,
         onTap: onItemTapped,
+        elevation: 0,
       ),
     );
   }
