@@ -11,9 +11,12 @@ void main() async {
       data: const MediaQueryData(),
       child: MaterialApp(
         home: GearLock(
-          hasGearLock: (await Process.run('sh', ['-c', "[ -x '/gearlock/init-chroot' ]"])).exitCode == 0,
-          // hasGearLock: (await Process.run('sh', ['-c', "[ -x '/system/bin/sh' ]"])).exitCode == 0,
-            ),
+          hasGearLock:
+              // (await Process.run('sh', ['-c', "[ -x '/gearlock/init-chroot' ]"]))
+              (await Process.run('sh', ['-c', "[ -x '/system/bin/sh' ]"]))
+                      .exitCode ==
+                  0,
+        ),
       ),
     ),
   );
@@ -434,6 +437,10 @@ class _GearLockState extends State<GearLock> {
   String appInsDate = "";
   String appFileList = "";
 
+  List<List<int>> lastVisited = [
+    [0, 0]
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -443,7 +450,7 @@ class _GearLockState extends State<GearLock> {
   int _selectedTab = 0;
   int _subTab = 0;
   bool _visible = true;
-  void onItemTapped(int t, int st) async {
+  void onItemTapped(List<int> t, {bool goBack = false}) async {
     setState(() {
       _visible = false;
     });
@@ -454,10 +461,14 @@ class _GearLockState extends State<GearLock> {
       curve: Curves.easeOut,
     );
     setState(() {
-      _selectedTab = t;
-      _subTab = st;
+      _selectedTab = t[0];
+      _subTab = t[1];
       _visible = true;
     });
+    if (!goBack) {
+      if (t[0] == 0 && t[1] == 0) lastVisited.clear();
+      lastVisited.add(t);
+    }
   }
 
   @override
@@ -542,7 +553,7 @@ class _GearLockState extends State<GearLock> {
 
     Widget packageBox(String appTitle, String appSize, Widget appIcon) {
       return ElevatedButton(
-        onPressed: () => onItemTapped(2, 1),
+        onPressed: () => onItemTapped([2, 1]),
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
           backgroundColor: const Color(0xffffffff),
@@ -1312,56 +1323,65 @@ class _GearLockState extends State<GearLock> {
         ]
       ],
     ];
-    return hasGearLock ? Scaffold(
-      backgroundColor: const Color(0xffffffff),
-      body: AnimatedOpacity(
-        opacity: _visible ? 1.0 : 0.0,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          child: ListView.builder(
-            itemCount: (bodyContent[_selectedTab][_subTab].length < 20)
-                ? bodyContent[_selectedTab][_subTab].length
-                : 20,
-            itemBuilder: (context, index) {
-              return bodyContent[_selectedTab][_subTab][index];
+    return hasGearLock
+        ? WillPopScope(
+            onWillPop: () async {
+              lastVisited.removeLast();
+              if (lastVisited.isEmpty) return true;
+              onItemTapped(lastVisited.last, goBack: true);
+              return false;
             },
-            physics: const BouncingScrollPhysics(),
-            controller: scrollController,
-          ),
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.android),
-            label: 'System',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.widgets_outlined),
-            label: 'Package',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.info_outlined),
-            label: 'About',
-          ),
-        ],
-        currentIndex: _selectedTab,
-        selectedFontSize: 12.0,
-        unselectedFontSize: 10.0,
-        selectedItemColor: const Color(0xff536dfe),
-        unselectedItemColor: const Color(0xff929292),
-        showUnselectedLabels: true,
-        showSelectedLabels: true,
-        onTap: (i) => onItemTapped(i, 0),
-        elevation: 0,
-      ),
-    ) : noGearlock;
+            child: Scaffold(
+              backgroundColor: const Color(0xffffffff),
+              body: AnimatedOpacity(
+                opacity: _visible ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: ListView.builder(
+                    itemCount: (bodyContent[_selectedTab][_subTab].length < 20)
+                        ? bodyContent[_selectedTab][_subTab].length
+                        : 20,
+                    itemBuilder: (context, index) {
+                      return bodyContent[_selectedTab][_subTab][index];
+                    },
+                    physics: const BouncingScrollPhysics(),
+                    controller: scrollController,
+                  ),
+                ),
+              ),
+              bottomNavigationBar: BottomNavigationBar(
+                items: const <BottomNavigationBarItem>[
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.android),
+                    label: 'System',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.widgets_outlined),
+                    label: 'Package',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.info_outlined),
+                    label: 'About',
+                  ),
+                ],
+                currentIndex: _selectedTab,
+                selectedFontSize: 12.0,
+                unselectedFontSize: 10.0,
+                selectedItemColor: const Color(0xff536dfe),
+                unselectedItemColor: const Color(0xff929292),
+                showUnselectedLabels: true,
+                showSelectedLabels: true,
+                onTap: (i) => onItemTapped([i, 0]),
+                elevation: 0,
+              ),
+            ))
+        : noGearlock;
   }
 }
