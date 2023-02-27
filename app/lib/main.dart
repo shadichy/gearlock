@@ -2,25 +2,66 @@ import 'dart:io';
 // import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+// import 'package:process_run/shell.dart';
 // import 'pkglist.dart';
 
-void main() {
+void main() async {
   runApp(
-    const MediaQuery(
-      data: MediaQueryData(),
+    MediaQuery(
+      data: const MediaQueryData(),
       child: MaterialApp(
         home: GearLock(
-            // appTitle: "[GoogleLTS_xanmod1]_Kernel_5.4.104_sakura",
-            // description: "Made with time & passion",
-            // author: "HMTheBoy154",
-            // pkgtype: true,
-            // version: "5.4.104",
-            // insDate: [3, 3, 2023],
+          hasGearLock: (await Process.run('sh', ['-c', "[ -x '/gearlock/init-chroot' ]"])).exitCode == 0,
+          // hasGearLock: (await Process.run('sh', ['-c', "[ -x '/system/bin/sh' ]"])).exitCode == 0,
             ),
       ),
     ),
   );
 }
+
+Widget noGearlock = Scaffold(
+  backgroundColor: const Color(0xffffffff),
+  body: Column(
+    crossAxisAlignment: CrossAxisAlignment.center,
+    mainAxisAlignment: MainAxisAlignment.center,
+    mainAxisSize: MainAxisSize.max,
+    children: [
+      Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: SvgPicture.asset(
+          "images/gearlock.svg",
+          fit: BoxFit.contain,
+          width: 100,
+          height: 100,
+        ),
+      ),
+      const ListTile(
+        title: Text(
+          "GEARLOCK NOT FOUND!",
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.clip,
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontStyle: FontStyle.normal,
+            fontSize: 16,
+            color: Color(0xff303f9f),
+          ),
+        ),
+        subtitle: Text(
+          "Please install this app on device that has GearLock installed",
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.clip,
+          style: TextStyle(
+            fontWeight: FontWeight.w300,
+            fontStyle: FontStyle.normal,
+            fontSize: 12,
+            color: Color(0xff929292),
+          ),
+        ),
+      )
+    ],
+  ),
+);
 
 class Item {
   final String header;
@@ -367,79 +408,11 @@ Widget topText(List<String> txt) {
   );
 }
 
-Widget packageBox(String appTitle, String appSize, Widget appIcon) {
-  return ElevatedButton(
-    onPressed: () => {},
-    style: ElevatedButton.styleFrom(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-      backgroundColor: const Color(0xffffffff),
-      foregroundColor: const Color(0xff555555),
-      shadowColor: Colors.transparent,
-      alignment: Alignment.centerLeft,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-    ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        Container(
-          alignment: Alignment.center,
-          margin: const EdgeInsets.all(0),
-          padding: const EdgeInsets.all(0),
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: const Color(0x00000000),
-            shape: BoxShape.circle,
-            border: Border.all(color: const Color(0x4d9e9e9e), width: 1),
-          ),
-          child: appIcon,
-        ),
-        Expanded(
-          flex: 1,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Text(
-                  appTitle,
-                  textAlign: TextAlign.start,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontStyle: FontStyle.normal,
-                    fontSize: 16,
-                    color: Color(0xff000000),
-                  ),
-                ),
-                Text(
-                  appSize,
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.clip,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w300,
-                    fontStyle: FontStyle.normal,
-                    fontSize: 12,
-                    color: Color(0xff000000),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
 class GearLock extends StatefulWidget {
+  final bool hasGearLock;
   const GearLock({
     super.key,
+    required this.hasGearLock,
   });
 
   @override
@@ -449,6 +422,7 @@ class GearLock extends StatefulWidget {
 class _GearLockState extends State<GearLock> {
   bool isX86 = true;
   bool hasGP = true;
+  bool hasGearLock = false;
 
   ScrollController scrollController = ScrollController();
   String appTitle = "";
@@ -463,6 +437,7 @@ class _GearLockState extends State<GearLock> {
   @override
   void initState() {
     super.initState();
+    hasGearLock = widget.hasGearLock;
   }
 
   int _selectedTab = 0;
@@ -561,6 +536,76 @@ class _GearLockState extends State<GearLock> {
           thickness: 0,
           indent: 0,
           endIndent: 0,
+        ),
+      );
+    }
+
+    Widget packageBox(String appTitle, String appSize, Widget appIcon) {
+      return ElevatedButton(
+        onPressed: () => onItemTapped(2, 1),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+          backgroundColor: const Color(0xffffffff),
+          foregroundColor: const Color(0xff555555),
+          shadowColor: Colors.transparent,
+          alignment: Alignment.centerLeft,
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Container(
+              alignment: Alignment.center,
+              margin: const EdgeInsets.all(0),
+              padding: const EdgeInsets.all(0),
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0x00000000),
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0x4d9e9e9e), width: 1),
+              ),
+              child: appIcon,
+            ),
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Text(
+                      appTitle,
+                      textAlign: TextAlign.start,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontStyle: FontStyle.normal,
+                        fontSize: 16,
+                        color: Color(0xff000000),
+                      ),
+                    ),
+                    Text(
+                      appSize,
+                      textAlign: TextAlign.start,
+                      overflow: TextOverflow.clip,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w300,
+                        fontStyle: FontStyle.normal,
+                        fontSize: 12,
+                        color: Color(0xff000000),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -721,6 +766,14 @@ class _GearLockState extends State<GearLock> {
               "Developers Zone",
               const Icon(
                 Icons.code,
+                color: Color(0xff212435),
+                size: 24,
+              )
+            ],
+            [
+              "Show logs",
+              const Icon(
+                Icons.bug_report_outlined,
                 color: Color(0xff212435),
                 size: 24,
               )
@@ -1259,7 +1312,7 @@ class _GearLockState extends State<GearLock> {
         ]
       ],
     ];
-    return Scaffold(
+    return hasGearLock ? Scaffold(
       backgroundColor: const Color(0xffffffff),
       body: AnimatedOpacity(
         opacity: _visible ? 1.0 : 0.0,
@@ -1269,9 +1322,9 @@ class _GearLockState extends State<GearLock> {
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
           child: ListView.builder(
-            itemCount: (bodyContent[_selectedTab][_subTab].length < 40)
+            itemCount: (bodyContent[_selectedTab][_subTab].length < 20)
                 ? bodyContent[_selectedTab][_subTab].length
-                : 40,
+                : 20,
             itemBuilder: (context, index) {
               return bodyContent[_selectedTab][_subTab][index];
             },
@@ -1309,6 +1362,6 @@ class _GearLockState extends State<GearLock> {
         onTap: (i) => onItemTapped(i, 0),
         elevation: 0,
       ),
-    );
+    ) : noGearlock;
   }
 }
