@@ -38,6 +38,9 @@ dependencies:
   flutter_svg: ^2.0.1
   path_provider: ^2.0.12
   root_access: ^1.0.4
+  flutter_localizations:
+    sdk: flutter
+  intl: any
 
 dev_dependencies:
   flutter_test:

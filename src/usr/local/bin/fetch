@@ -34,13 +34,8 @@ PATH="/bin:/sbin:/usr/local/bin:/usr/bin:/usr/sbin:$SYSTEM_DIR/bin:$SYSTEM_DIR/x
 $SYSTEM_DIR/vendor/bin:/apex/com.android.runtime/bin:/apex/com.android.art/bin"
 
 # Set GHOME
-GHOME="$(
-	if test -d "$SYSTEM_DIR/ghome"; then
-		echo "$SYSTEM_DIR/ghome"
-	else
-		echo "$DATA_DIR/ghome"
-	fi
-)"
+GHOME=$SYSTEM_DIR/ghome
+[ -d $GHOME ] || GHOME=$DATA_DIR/ghome
 # HOME="$GHOME"
 
 # Start Initializing core variables
@@ -142,7 +137,7 @@ if test -n "$GRROOT"; then
 	STATDIR="$GHOME/status"
 	GRLOAD="$GRROOT/gearload"
 	UNINSDIR="$GHOME/unins"
-	GAPPID="com.supremegamers.gearlock"
+	GAPPID="dev.aopc.gearlock"
 	GBDIR="$GHOME/gearboot"
 	OVERLAYDIR="$GBDIR/overlay"
 	EXTDIR="$GHOME/extensions"

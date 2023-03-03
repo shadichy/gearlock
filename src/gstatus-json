@@ -1,0 +1,124 @@
+#!/bin/sh
+
+OLD_PATH=$PATH
+OLD_LD=$LD_LIBRARY_PATH
+
+export PATH="/gearlock/:/gearlock/usr/local/bin/:/gearlock/bin/:$PATH"
+export LD_LIBRARY_PATH="/gearlock/lib/:${LD_LIBRARY_PATH:-/system/lib:/lib}"
+
+geco() { printf "%s" "$*"; }
+
+BOOTED=$(getprop sys.boot_completed)
+
+GHOME=/system/ghome
+[ -d $GHOME ] || GHOME=/data/ghome
+
+cpuArch="$(uname -m)"
+case "$cpuArch" in
+i?86) cpuArch="x86" ;;
+esac
+
+if grep -owq 'lm' /proc/cpuinfo; then
+  case "$cpuArch" in
+  x86) cpuArch="x86_64" ;;
+  arm*) cpuArch="aarch64" ;;
+  esac
+fi
+
+if command -v su; then
+  if [ -e "/sbin/magisk" ]; then
+    suHandler="Magisk"
+  else
+    suHandler="SuperSU"
+  fi
+fi
+
+echo "
+{
+  \"gearlock\": {
+    \"version\": \"$(gearlock -v)\",
+    \"gearboot\": \"$(gearboot -v)\",
+    \"gearprop\": \"$(gearprop -v)\"
+  },
+  \"android\": {
+    \"release\": \"$(getprop ro.build.version.release)\",
+    \"sdkInt\": \"$(getprop ro.build.version.sdk)\",
+    \"buildNo\": \"$(getprop ro.build.display.id)\",
+    \"suHandler\": \"${suHandler}\",
+    $([ "$suHandler" = "Magisk" ] && geco "\"suVer\": \"$(magisk -v)\",")
+    \"googLess\": \"$(
+      gms=com.google.android.gms
+      {
+        ! pm list package | grep -q "$gms" ||
+          pm dump $gms | grep -q "org.microg.gms"
+      } && geco "On" || geco "Off"
+    )\",
+    $([ "${cpuArch##x86*}" = "" ] && [ -d /system/lib/arm ] && geco "\"armLayer\": \"On\",")
+    $([ -f "${nb:=$GHOME/status/native-bridge}" ] && geco "\"armType\": \"$(cat "$nb")\",")
+    \"mac\": \"$(ip link | grep "link/ether" | awk '{print $2}' | xargs | sed 's/ /, /g')\"
+  },"
+
+if [ "$BOOTED" = "1" ]; then
+  gfxdumpVarPreload="$(dumpsys SurfaceFlinger | grep GLES)"
+  echo "
+  \"graphics\": {
+    \"resolution\": \"$(wm size | sed 's/.*: //')\",
+    \"dpi\": \"$(wm density | sed 's/.*: //')\",
+    \"glVendor\": \"$(geco "${gfxdumpVarPreload%%,*}" | sed 's/GLES: //')\",
+    \"glRenderer\": \"$(geco "${gfxdumpVarPreload#*, }" | cut -d , -f1)\",
+    \"glVersion\": \"${gfxdumpVarPreload##*, }\"
+  },"
+fi
+
+cpuinfo=/sys/devices/system/cpu
+gpuinfo=$(lspci | grep 'VGA' | sed 's/.*: \(.*\)(rev.*/\1/')
+echo "
+  \"kernel\": {
+    \"version\": \"$(uname -r)\",
+    \"build\": \"$(uname -v)\",
+    \"arch\": \"$(uname -m)\",
+    \"uptime\":\"$(
+      if [ -r /proc/uptime ]; then
+        s=$(cat /proc/uptime)
+        s=${s%%.*}
+      else
+        boot=$(date -d"$(uptime -s)" +%s)
+        now=$(date +%s)
+        s=$((now - boot))
+      fi
+      d="$((s / 60 / 60 / 24)) days"
+      h="$((s / 60 / 60 % 24)) hours"
+      m="$((s / 60 % 60)) minutes"
+      [ "${d%% *}" = 1 ] && d=${d%s}
+      [ "${h%% *}" = 1 ] && h=${h%s}
+      [ "${m%% *}" = 1 ] && m=${m%s}
+      [ "${d%% *}" = 0 ] && unset d
+      [ "${h%% *}" = 0 ] && unset h
+      [ "${m%% *}" = 0 ] && unset m
+      geco "${d:+$d, }${h:+$h, }$m"
+    )\"
+  },
+  \"cpu\": {
+    \"name\": \"$(grep "model\ name" /proc/cpuinfo | uniq | sed 's/.*: //')\",
+    \"arch\": \"${cpuArch}\",
+    \"cores\": \"$(grep -c "processor" /proc/cpuinfo)\",
+    \"vendor\": \"$(grep "vendor_id" /proc/cpuinfo | uniq | sed 's/.*: //')\",
+    \"freqRange\": \"$(
+      freq=$(cat $cpuinfo/cpu*/cpufreq/scaling_m??_freq | sort -nu | xargs)
+      geco "$((${freq%% *} / 1000))Mhz - $((${freq##* } / 1000))MHz"
+    )\",
+    \"governor\": \"$(cat $cpuinfo/cpu*/cpufreq/scaling_governor | uniq | xargs | sed 's/ /, /g')\",
+    \"gvnrs\": \"$(cat $cpuinfo/cpu*/cpufreq/scaling_available_governors | uniq | xargs | sed 's/ /, /g')\"
+  },
+  \"gpu\": {
+    \"name\": \"${gpuinfo}\",
+    \"vendor\": \"${gpuinfo%% *}\"
+  },
+  \"ram\": \"$(free -m | grep Mem | awk '{print $2}')MB\",
+  \"storage\": \"$(($(df | grep -Ev "^[a-zA-Z]" | awk '{print $3" "$4}' | uniq | awk '{sum+=$1+$2} END{print sum}') / 1000))MB\",
+  \"model\":\"$(getprop ro.product.model)\",
+  \"boot\":\"$([ -d /sys/firmware/efi ] && geco "uEFI" || geco "Legacy")\"
+}"
+
+export PATH="$OLD_PATH"
+export LD_LIBRARY_PATH="$OLD_LD"

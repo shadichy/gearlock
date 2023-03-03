@@ -2,10 +2,10 @@
 
 chrootdir=/gearlock
 
-die() { printf "%s %s" "==> ERROR:" "$*"; exit 1; }
+die() { printf "%s %s" "==> ERROR: " "$*" && exit 1; }
 
 chroot_add_mount() { mount "$@" && CHROOT_ACTIVE_MOUNTS="$2 $CHROOT_ACTIVE_MOUNTS"; }
-chroot_if_dir() { [ -d "$1" ] && shift && chroot_add_mount "$@"; return 0; }
+chroot_if_dir() { [ -d "$1" ] && shift && chroot_add_mount "$@" || true; }
 chroot_teardown() { [ "$CHROOT_ACTIVE_MOUNTS" ] && umount "$CHROOT_ACTIVE_MOUNTS" && unset CHROOT_ACTIVE_MOUNTS; }
 
 chroot_setup() {
@@ -13,25 +13,24 @@ chroot_setup() {
 	trap 'chroot_teardown' EXIT
 
 	chroot_add_mount proc "$1/proc" -t proc -o nosuid,noexec,nodev &&
-	chroot_add_mount sys "$1/sys" -t sysfs -o nosuid,noexec,nodev,ro &&
-	chroot_if_dir /sys/firmware/efi/efivars efivarfs "$1/sys/firmware/efi/efivars" -t efivarfs -o nosuid,noexec,nodev &&
-	chroot_add_mount /dev "$1/dev" --rbind &&
-	chroot_add_mount /system "$1/system" --bind &&
-	chroot_add_mount /data "$1/data" --bind &&
-	chroot_add_mount /vendor "$1/vendor" --bind &&
-	chroot_if_dir /apex /apex "$1/apex" --bind &&
-	chroot_add_mount tmp "$1/tmp" -t tmpfs -o mode=1777,strictatime,nodev,nosuid &&
-	CHROOT_ACTIVE_MOUNTS="$1/dev/cpuset $1/dev/cpuctl $1/dev/memcg $1/dev/pts $CHROOT_ACTIVE_MOUNTS"
+		chroot_add_mount sys "$1/sys" -t sysfs -o nosuid,noexec,nodev,ro &&
+		chroot_if_dir /sys/firmware/efi/efivars efivarfs "$1/sys/firmware/efi/efivars" -t efivarfs -o nosuid,noexec,nodev &&
+		chroot_add_mount /dev "$1/dev" --rbind &&
+		chroot_add_mount /system "$1/system" --bind &&
+		chroot_add_mount /data "$1/data" --bind &&
+		chroot_add_mount /vendor "$1/vendor" --bind &&
+		chroot_if_dir /apex /apex "$1/apex" --bind &&
+		chroot_add_mount tmp "$1/tmp" -t tmpfs -o mode=1777,strictatime,nodev,nosuid &&
+		CHROOT_ACTIVE_MOUNTS="$1/dev/cpuset $1/dev/cpuctl $1/dev/memcg $1/dev/pts $CHROOT_ACTIVE_MOUNTS"
 }
 
 remount() { [ "$GDEBUG" ] || [ "$RECOVERY" ] || su -c 'mount -o rw,remount /'; }
 
-[ "$EUID" = "0" ] || die "this script must be ran with root. Please try again using 'su -c %s'" "${0##*/}"
+[ "$EUID" = "0" ] || die "This script must be ran with root. Please try again using 'su -c %s'" "${0##*/}"
 
-remount || die "failed to remount system with read-write permission"
-chroot_setup "$chrootdir" || die "failed to setup chroot %s" "$chrootdir"
+remount || die "Failed to remount system with read-write permission"
+chroot_setup "$chrootdir" || die "Failed to setup chroot %s" "$chrootdir"
 
 SHELL=/bin/bash chroot "$chrootdir" /bin/bash -c " \
 echo -e \"nameserver $(getprop net.dns1)\" > /etc/resolv.conf; \
 ${*:-/usr/local/bin/g}"
-
