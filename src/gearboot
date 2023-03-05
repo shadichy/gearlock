@@ -25,9 +25,9 @@ make_bashls() {
 		test ! -e "${lk:="/tmp/.bashls"}" &&
 		touch "$lk" &&
 		rm "$mk" &&
-		openvt -c $1 gbash -l &&
-		setfont "$GRLBASE/usr/share/terminfo/c/cons16-asm" -C /dev/tty$1 &&
-		setterm --linewrap on >/dev/tty$1
+		openvt -c "$1" gbash -l &&
+		setfont "$GRLBASE/usr/share/terminfo/c/cons16-asm" -C "/dev/tty$1" &&
+		setterm --linewrap on >"/dev/tty$1"
 }
 
 bind_grload() {

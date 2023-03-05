@@ -1,4 +1,4 @@
-# Introduction  [![GearLock][def]](https://github.com/AXIM0S/gearlock) [![CI](https://github.com/AXIM0S/gearlock/workflows/CI/badge.svg)](https://github.com/AXIM0S/gearlock/actions) [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org) [![](https://tokei.rs/b1/github/axonasif/gearlock?category=lines)](https://github.com/axonasif/gearlock)
+# Introduction [![GearLock][gl]][gl2] [![CI][ci]][cilink] [![Conventional Commits][cc]][cclink] [![total lines][tl]][ttlink]
 
 GearLock is a dynamically written bash program focused in performance with the intension of making modifications in android-x86 easier.
 
@@ -10,7 +10,7 @@ GearLock and everything within it are standalone programs and does not need to r
 
 It can be used both GUI and TTY in a user-friendly manner, including advanced CLI usage.
 
-# Features
+## Features
 
 <details>
   <summary>Spoiler (click here)</summary>
@@ -63,7 +63,7 @@ It can be used both GUI and TTY in a user-friendly manner, including advanced CL
   
 </details>
 
-# Boot flags
+## Boot flags
 
 You can control the behavior of GearLock early recovery screen with boot-flags.
 There are three kinds of flags you can use.
@@ -71,29 +71,30 @@ There are three kinds of flags you can use.
 <details>
   <summary>Spoiler (more details)</summary>
 
-- NORECOVERY
-- ALWAYSRECOVERY
+- RECOVERY
+- FRESHBOOT
 - FIXFS
 - NOGFX
 
-## NORECOVERY
-
-This helps you bypass the recovery countdown screen. You can either put `NORECOVERY=1` in your grub-config or make a file named norecovery in your android-x86 partition.
-
 ### Grub config example
 
-```bash
-linux /kernel quiet NORECOVERY=1
+```sh
+linux /vmlinuz quiet FRESHBOOT
 ```
 
-## ALWAYSRECOVERY​
+### RECOVERY
 
-This lets you to auto-enter recovery mode always* without having to press ESC.
-Just like NORECOVERY, you can active this by grub (`ALWAYSRECOVERY=1`) or by making a file named `alwaysrecovery` in android-x86 partition.
+This will enter recovery mode on boot
 
-## FIXFS
+In recovery mode, you can use some special gearlock functions like supercharge,...
 
-This will auto-fix extFS on each boot from the option which you find in recovery mode.
+### FRESHBOOT
+
+Fresh boot android (no /data)
+
+### FIXFS
+
+This will auto-fix root filesystem on each boot from the option which you find in recovery mode.
 
 In other words, it will run fsck against your root partition.
 
@@ -101,7 +102,7 @@ Grub-Flag> `FIXFS=1`
 
 File-Flag> `fixfs`
 
-## NOGFX
+### NOGFX
 
 When this flag is found, GearLock does not attempt to get the best possible visuals during RECOVERY-MODE. There are some really rare cases among some users in which when GearLock tries to ensure better visuals, kernel panic happens during boot.
 
@@ -110,11 +111,11 @@ File-Flag> `nogfx`
 
 </details>
 
-# Flashable ZIP Compatibility
+## Flashable ZIP Compatibility
 
 If you want my honest word then you should know that about 99% of the available flashable zips out there will likely fail since they were never made for android-x86 and GearLock has nothing to do about that. In which most of them are flashable-roms which you obviously won't be installing on android-x86. Currently I've had success with OpenGapps and a few other zips. Other than that will surely fail unless the developer itself implements android-x86 support.
 
-# Pre-baked GearLock
+## Pre-baked GearLock
 
 GearLock is being proudly integrated with the following reputed distros:
 
@@ -123,7 +124,7 @@ GearLock is being proudly integrated with the following reputed distros:
 
 If you're working on a remarkable distro and want to bring GearLock into it then you're welcome :)
 
-# Development and Contributing
+## Development and Contributing
 
 Feel free to create a fork and help make this project even better.
 
@@ -166,7 +167,7 @@ I would need to setup a complete build system for them, what I've been doing was
 
 I will need a lot of free time to accomplish this since I'm a student, but you can surely expect this in the future.
 
-# Additional Links
+## Additional Links
 
 - GearLock dev-kit: <https://github.com/AXIM0S/gearlock-dev-kit>
 - GearLock core-pkg: <https://github.com/AXIM0S/gearlock-core-pkg>
@@ -174,7 +175,7 @@ I will need a lot of free time to accomplish this since I'm a student, but you c
 - GearLock kernel-pkg: <https://github.com/AXIM0S/gearlock-kernel-pkg>
 - GearLock dev-doc: <https://wiki.supreme-gamers.com/gearlock/developer-guide>
 
-# Integration with Android-x86 source
+## Integration with Android-x86 source
 
 Adaptation for Android-Generic Project was done by: @electrikjesus
 
@@ -195,7 +196,7 @@ Adaptation for Android-Generic Project was done by: @electrikjesus
 > Android-x86:
 `lunch android_x86_64-userdebug && make -j4 iso_img`
 
-# Credits and thanks
+## Credits and thanks
 
 Here I'm trying to list all of the remarkable work by others which has been used to enrich GearLock.
 
@@ -221,7 +222,7 @@ Without their open-minded years of hard work, GearLock wouldn't have been the sa
 
 > <https://gitlab.com/termapps/termoneplus>
 
-## Also thanks to
+### Also thanks to
 
 - @hmtheboy154 (Contibutor)
 - @SGNight (Contibutor)
@@ -237,11 +238,11 @@ Without their open-minded years of hard work, GearLock wouldn't have been the sa
 - <http://e2fsprogs.sourceforge.net>
 - <https://github.com/arter97/resetprop>
 
-# Copyright and License
+## Copyright and License
 
 This project is [GPL-2.0](https://github.com/AXIM0S/gearlock/blob/main/LICENSE) licensed.
 
-```
+```license
     GearLock
     Copyright (C) 2021  SupremeGamers
 
@@ -259,5 +260,11 @@ This project is [GPL-2.0](https://github.com/AXIM0S/gearlock/blob/main/LICENSE) 
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ```
 
-
-[def]: https://img.shields.io/badge/GearLock-7.3.15-blue.svg
+[gl]: https://img.shields.io/badge/GearLock-7.3.15-blue.svg
+[gl2]: https://github.com/AXIM0S/gearlock
+[ci]: https://github.com/AXIM0S/gearlock/workflows/CI/badge.svg
+[cilink]: https://github.com/AXIM0S/gearlock/actions
+[cc]: https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg
+[cclink]: https://conventionalcommits.org
+[tl]: https://tokei.rs/b1/github/axonasif/gearlock?category=lines
+[ttlink]: https://github.com/axonasif/gearlock

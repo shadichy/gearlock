@@ -30,11 +30,6 @@ class _PackageDetailState extends State<PackageDetail> {
     super.initState();
   }
 
-  void _onItemTapped(int t) async {
-    Navigator.pushNamedAndRemoveUntil(
-        context, navBar['switchNavigation'](t), (route) => false);
-  }
-
   @override
   Widget build(BuildContext context) {
     Widget singleExpandaText(String title, String content) {
@@ -64,9 +59,7 @@ class _PackageDetailState extends State<PackageDetail> {
       ]);
     }
 
-    return Scaffold(
-      backgroundColor: const Color(0xffffffff),
-      body: ListView.builder(
+    return ListView.builder(
         // itemCount: (body.length < 20) ? body.length : 20,
         itemBuilder: (context, index) {
           return [
@@ -196,19 +189,6 @@ class _PackageDetailState extends State<PackageDetail> {
           ][index];
         },
         physics: const BouncingScrollPhysics(),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 2,
-        items: navBar['items'],
-        selectedFontSize: navBar['selectedFontSize'],
-        unselectedFontSize: navBar['unselectedFontSize'],
-        selectedItemColor: navBar['selectedItemColor'],
-        unselectedItemColor: navBar['unselectedItemColor'],
-        showUnselectedLabels: navBar['showUnselectedLabels'],
-        showSelectedLabels: navBar['showSelectedLabels'],
-        elevation: navBar['elevation'],
-        onTap: _onItemTapped,
-      ),
-    );
+      );
   }
 }
