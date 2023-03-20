@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:gearlock/about.dart';
+import 'package:gearlock/global_widgets.dart';
 import 'package:gearlock/home.dart';
 import 'package:gearlock/glnotfound.dart';
 import 'package:gearlock/pkglist.dart';
@@ -22,6 +23,15 @@ void main() {
   );
 }
 
+class GearPage {
+  final int tab;
+  final GearStatefulWidget page;
+  const GearPage({
+    required this.tab,
+    required this.page,
+  });
+}
+
 class MainClass extends StatefulWidget {
   const MainClass({
     super.key,
@@ -37,34 +47,58 @@ class _MainClassState extends State<MainClass> {
     super.initState();
   }
 
-  int _selectedTab = 0;
-  List<int> lastVisited = [0];
+  void callbackAdd(GearStatefulWidget page) {
+    setState(() {
+      lastVisited.add(GearPage(
+        tab: _selectedTab,
+        page: page,
+      ));
+    });
+    // print(lastVisited);
+  }
 
-  List<Widget> routes = const [
-    HomeScreen(),
-    SysInfoScreen(),
-    PkgList(),
-    AboutPage(),
-  ];
-  void onItemTapped(int t, {bool goBack = false}) async {
+  int _selectedTab = 0;
+  List<GearStatefulWidget> defaultRoutes = [];
+  List<GearPage> lastVisited = [];
+
+  void onItemTapped(int t) {
     setState(() {
       _selectedTab = t;
     });
-    if (!goBack) {
-      if (t == 0) lastVisited.clear();
-      lastVisited.add(t);
-    }
+    callbackAdd(defaultRoutes[_selectedTab]);
+  }
+
+  // void goBack(int t) {
+  //   if (t == 0) lastVisited.clear();
+  //   lastVisited.add(t);
+  // }
+  bool checkProg() {
+    return lastVisited.last.page.isFininshed;
+  }
+
+  void callGoBack() {
+    setState(() {
+      lastVisited.removeLast();
+      if (lastVisited.isNotEmpty) _selectedTab = lastVisited.last.tab;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    defaultRoutes = [
+      HomeScreen(callbackAdd: callbackAdd, callGoBack: callGoBack),
+      SysInfoScreen(callbackAdd: callbackAdd, callGoBack: callGoBack),
+      PkgList(callbackAdd: callbackAdd, callGoBack: callGoBack),
+      AboutPage(callbackAdd: callbackAdd, callGoBack: callGoBack),
+    ];
+    GearPage homePage = GearPage(tab: 0, page: defaultRoutes[0]);
+    lastVisited.isEmpty ? lastVisited.add(homePage) : lastVisited[0] = homePage;
     return Scaffold(
       backgroundColor: const Color(0xffffffff),
       body: WillPopScope(
         onWillPop: () async {
-          lastVisited.removeLast();
+          callGoBack();
           if (lastVisited.isEmpty) return true;
-          onItemTapped(lastVisited.last, goBack: true);
           return false;
         },
         child: PageTransitionSwitcher(
@@ -73,7 +107,7 @@ class _MainClassState extends State<MainClass> {
             secondaryAnimation: anim2,
             child: child,
           ),
-          child: routes[_selectedTab],
+          child: lastVisited[lastVisited.length - 1].page,
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(

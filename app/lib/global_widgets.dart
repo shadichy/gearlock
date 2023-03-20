@@ -123,3 +123,31 @@ Widget simpleTextBox(context, String title, String content) {
     ),
   );
 }
+
+class GearStatefulWidget extends StatefulWidget {
+  final void Function(GearStatefulWidget page) callbackAdd;
+  final void Function() callGoBack;
+  final bool isFininshed;
+  const GearStatefulWidget({
+    super.key,
+    required this.callbackAdd,
+    required this.callGoBack,
+    this.isFininshed = false,
+  });
+
+  @override
+  State<GearStatefulWidget> createState() => _GearStatefulWidgetState();
+}
+
+class _GearStatefulWidgetState extends State<GearStatefulWidget> {
+  late bool isFininshed;
+  @override
+  void initState() {
+    isFininshed = false;
+    super.initState();
+  }
+  
+  @override
+  Widget build(BuildContext context) => throw UnimplementedError();
+
+}

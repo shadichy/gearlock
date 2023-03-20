@@ -8,9 +8,11 @@ final Map<String, dynamic> _colc =
     jsonDecode(Process.runSync("/data/local/tmp/gstatus-json", []).stdout);
 
 // /gearlock/gstatus-json
-class SysInfoScreen extends StatefulWidget {
+class SysInfoScreen extends GearStatefulWidget {
   const SysInfoScreen({
     super.key,
+    required super.callbackAdd,
+    required super.callGoBack,
   });
 
   @override
@@ -18,13 +20,16 @@ class SysInfoScreen extends StatefulWidget {
 }
 
 class _SysInfoScreenState extends State<SysInfoScreen> {
+  late bool isFininshed;
   @override
   void initState() {
     super.initState();
+    isFininshed = widget.isFininshed;
   }
 
   @override
   Widget build(BuildContext context) {
+    isFininshed = true;
     Widget infoTextBox(List<List<dynamic>> content) {
       List<Widget> txtbx = [];
       for (var i = 0; i < content.length; i++) {
@@ -75,7 +80,7 @@ class _SysInfoScreenState extends State<SysInfoScreen> {
         padding: const EdgeInsets.all(0),
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
-          color: const Color(0x00000000),
+          color: const Color(0xffffffff),
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(8.0),
           border: Border.all(color: const Color(0x4d9e9e9e), width: 1),

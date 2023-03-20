@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:gearlock/global_widgets.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends GearStatefulWidget {
   const HomeScreen({
     super.key,
+    required super.callbackAdd,
+    required super.callGoBack,
   });
 
   @override
@@ -11,13 +13,16 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late bool isFininshed;
   @override
   void initState() {
+    isFininshed = widget.isFininshed;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    isFininshed = true;
     Widget homeActions(List<List> childItems) {
       List<Widget> children = [];
       for (var i = 0; i < childItems.length; i++) {
@@ -218,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(8),
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
-          color: const Color(0x00000000),
+          color: const Color(0xffffffff),
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(8.0),
           border: Border.all(color: const Color(0x4d9e9e9e), width: 1),

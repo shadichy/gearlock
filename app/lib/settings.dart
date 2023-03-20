@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:gearlock/global_widgets.dart';
 
 class AppSettings extends StatefulWidget {
+  final void Function(Widget page) callbackAdd;
   const AppSettings({
     super.key,
+    required this.callbackAdd,
   });
 
   @override

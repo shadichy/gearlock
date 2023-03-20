@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gearlock/global_widgets.dart';
 
-class AboutPage extends StatefulWidget {
+class AboutPage extends GearStatefulWidget {
   const AboutPage({
     super.key,
+    required super.callbackAdd,
+    required super.callGoBack,
   });
 
   @override
@@ -13,13 +15,16 @@ class AboutPage extends StatefulWidget {
 }
 
 class _AboutPageState extends State<AboutPage> {
+  late bool isFininshed;
   @override
   void initState() {
     super.initState();
+    isFininshed = widget.isFininshed;
   }
 
   @override
   Widget build(BuildContext context) {
+    isFininshed = true;
     Widget multiExpandaText(List<List<String>> content) {
       List<ExpansionPanelRadio> txtbox = [];
       for (var ctn in content) {
@@ -53,7 +58,7 @@ class _AboutPageState extends State<AboutPage> {
               // maxLines: 1,
               overflow: TextOverflow.clip,
               style: const TextStyle(
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w300,
                 fontStyle: FontStyle.normal,
                 fontSize: 14,
                 color: Color(0xff000000),

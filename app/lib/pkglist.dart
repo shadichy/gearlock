@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:gearlock/global_widgets.dart';
+import 'package:animations/animations.dart';
+import 'package:gearlock/package.dart';
+import 'package:gearlock/searchpkg.dart';
 
-class PkgList extends StatefulWidget {
+List<Widget> lastVisited = [const SizedBox()];
+
+class PkgList extends GearStatefulWidget {
   const PkgList({
     super.key,
+    required super.callbackAdd,
+    required super.callGoBack,
   });
 
   @override
@@ -11,80 +18,89 @@ class PkgList extends StatefulWidget {
 }
 
 class _PkgListState extends State<PkgList> {
+  // late Widget currentPage;
+  late final void Function(GearStatefulWidget page) callbackAdd;
+  late final void Function() callGoBack;
+  late bool isFininshed;
+
   @override
   void initState() {
     super.initState();
+    callbackAdd = widget.callbackAdd;
+    callGoBack = widget.callGoBack;
+    isFininshed = widget.isFininshed;
   }
 
   @override
   Widget build(BuildContext context) {
+    isFininshed = true;
     Widget packageBox(String appTitle, String appSize, Widget appIcon) {
-      return ElevatedButton(
-        onPressed: () => {Navigator.pushNamed(context, '/package')},
-        style: ElevatedButton.styleFrom(
+      return OpenContainer(
+        closedBuilder: (context, closedF) => Container(
+          height: 60,
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          backgroundColor: const Color(0xffffffff),
-          foregroundColor: const Color(0xff555555),
-          shadowColor: Colors.transparent,
-          alignment: Alignment.centerLeft,
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Container(
-              alignment: Alignment.center,
-              margin: const EdgeInsets.all(0),
-              padding: const EdgeInsets.all(0),
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: const Color(0x00000000),
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0x4d9e9e9e), width: 1),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Container(
+                alignment: Alignment.center,
+                margin: const EdgeInsets.all(0),
+                padding: const EdgeInsets.all(0),
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: const Color(0x00000000),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0x4d9e9e9e), width: 1),
+                ),
+                child: appIcon,
               ),
-              child: appIcon,
-            ),
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Text(
-                      appTitle,
-                      textAlign: TextAlign.start,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontStyle: FontStyle.normal,
-                        fontSize: 16,
-                        color: Color(0xff000000),
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Text(
+                        appTitle,
+                        textAlign: TextAlign.start,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontStyle: FontStyle.normal,
+                          fontSize: 16,
+                          color: Color(0xff000000),
+                        ),
                       ),
-                    ),
-                    Text(
-                      appSize,
-                      textAlign: TextAlign.start,
-                      overflow: TextOverflow.clip,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w300,
-                        fontStyle: FontStyle.normal,
-                        fontSize: 12,
-                        color: Color(0xff000000),
+                      Text(
+                        appSize,
+                        textAlign: TextAlign.start,
+                        overflow: TextOverflow.clip,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w300,
+                          fontStyle: FontStyle.normal,
+                          fontSize: 12,
+                          color: Color(0xff000000),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        openBuilder: (context, openF) => PackageDetail(appName: appTitle),
+        closedElevation: 0,
+        transitionDuration: const Duration(milliseconds: 500),
+        transitionType: ContainerTransitionType.fadeThrough,
       );
     }
 
@@ -116,44 +132,65 @@ class _PkgListState extends State<PkgList> {
           ],
         ),
       ),
-      ElevatedButton(
-        onPressed: () {},
-        style: ElevatedButton.styleFrom(
+      OpenContainer(
+        closedBuilder: (context, closedF) => Container(
+          height: 48,
           padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-          fixedSize: Size(MediaQuery.of(context).size.width, 40),
-          shadowColor: Colors.transparent,
-          elevation: 0,
-          foregroundColor: const Color(0xff555555),
-          backgroundColor: const Color(0xffffffff),
-          alignment: Alignment.centerLeft,
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          children: const [
-            Icon(
-              Icons.add,
-              // onPressed: () {},
-              color: Color(0xff3f51b5),
-              size: 24,
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
-              child: Text(
-                "Add package",
-                textAlign: TextAlign.start,
-                overflow: TextOverflow.clip,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontStyle: FontStyle.normal,
-                  fontSize: 14,
-                  color: Color(0xff3f51b5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: const [
+              Icon(
+                Icons.add,
+                // onPressed: () {},
+                color: Color(0xff3f51b5),
+                size: 24,
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
+                child: Text(
+                  "Add package",
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.clip,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontStyle: FontStyle.normal,
+                    fontSize: 14,
+                    color: Color(0xff3f51b5),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
+        ),
+        openBuilder: (context, openF) =>
+            SearchPkg(callbackAdd: callbackAdd, callGoBack: callGoBack),
+        closedElevation: 0,
+        transitionDuration: const Duration(milliseconds: 500),
+        transitionType: ContainerTransitionType.fadeThrough,
+      ),
+      ListTile(
+        onTap: () {
+          callbackAdd(
+              SearchPkg(callbackAdd: callbackAdd, callGoBack: callGoBack));
+        },
+        leading: const Icon(
+          Icons.add,
+          // onPressed: () {},
+          color: Color(0xff3f51b5),
+          size: 24,
+        ),
+        title: const Text(
+          "Add package",
+          textAlign: TextAlign.start,
+          overflow: TextOverflow.clip,
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontStyle: FontStyle.normal,
+            fontSize: 14,
+            color: Color(0xff3f51b5),
+          ),
         ),
       ),
       packageBox(
@@ -217,12 +254,28 @@ class _PkgListState extends State<PkgList> {
         ),
       ),
     ];
-    return ListView.builder(
-      itemCount: (body.length < 20) ? body.length : 20,
+    lastVisited[0] = (ListView.builder(
+      itemCount: body.length,
       itemBuilder: (context, index) {
         return body[index];
       },
       physics: const BouncingScrollPhysics(),
+    ));
+    // currentPage = lastVisited.last;
+    return WillPopScope(
+      onWillPop: () async {
+        lastVisited.removeLast();
+        if (lastVisited.isEmpty) return true;
+        return false;
+      },
+      child: PageTransitionSwitcher(
+        transitionBuilder: (child, anim1, anim2) => FadeThroughTransition(
+          animation: anim1,
+          secondaryAnimation: anim2,
+          child: child,
+        ),
+        child: lastVisited[lastVisited.length - 1],
+      ),
     );
   }
 }

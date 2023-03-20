@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:gearlock/global_widgets.dart';
 
 class TestTemplate extends StatefulWidget {
+  final void Function(Widget page) callbackAdd;
   const TestTemplate({
     super.key,
+    required this.callbackAdd,
   });
 
   @override
@@ -20,7 +22,7 @@ class _TestTemplateState extends State<TestTemplate> {
   Widget build(BuildContext context) {
     List<Widget> body = [];
     return ListView.builder(
-      itemCount: (body.length < 20) ? body.length : 20,
+      itemCount: body.length,
       itemBuilder: (context, index) {
         return body[index];
       },
