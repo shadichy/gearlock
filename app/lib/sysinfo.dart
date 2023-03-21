@@ -9,10 +9,11 @@ final Map<String, dynamic> _colc =
 
 // /gearlock/gstatus-json
 class SysInfoScreen extends GearStatefulWidget {
-  const SysInfoScreen({
+  SysInfoScreen({
     super.key,
     required super.callbackAdd,
     required super.callGoBack,
+    required super.preventBack,
   });
 
   @override
@@ -20,16 +21,13 @@ class SysInfoScreen extends GearStatefulWidget {
 }
 
 class _SysInfoScreenState extends State<SysInfoScreen> {
-  late bool isFininshed;
   @override
   void initState() {
     super.initState();
-    isFininshed = widget.isFininshed;
   }
 
   @override
   Widget build(BuildContext context) {
-    isFininshed = true;
     Widget infoTextBox(List<List<dynamic>> content) {
       List<Widget> txtbx = [];
       for (var i = 0; i < content.length; i++) {

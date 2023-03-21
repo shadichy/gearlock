@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gearlock/global_widgets.dart';
 
-class TestTemplate extends StatefulWidget {
-  final void Function(Widget page) callbackAdd;
-  const TestTemplate({
+class TestTemplate extends GearStatefulWidget {
+  TestTemplate({
     super.key,
-    required this.callbackAdd,
+    required super.callbackAdd,
+    required super.callGoBack,
+    required super.preventBack,
   });
 
   @override
@@ -20,13 +21,7 @@ class _TestTemplateState extends State<TestTemplate> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> body = [];
-    return ListView.builder(
-      itemCount: body.length,
-      itemBuilder: (context, index) {
-        return body[index];
-      },
-      physics: const BouncingScrollPhysics(),
-    );
+    // TODO: implement build
+    throw UnimplementedError();
   }
 }

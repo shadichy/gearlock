@@ -4,10 +4,11 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gearlock/global_widgets.dart';
 
 class AboutPage extends GearStatefulWidget {
-  const AboutPage({
+  AboutPage({
     super.key,
     required super.callbackAdd,
     required super.callGoBack,
+    required super.preventBack,
   });
 
   @override
@@ -15,16 +16,13 @@ class AboutPage extends GearStatefulWidget {
 }
 
 class _AboutPageState extends State<AboutPage> {
-  late bool isFininshed;
   @override
   void initState() {
     super.initState();
-    isFininshed = widget.isFininshed;
   }
 
   @override
   Widget build(BuildContext context) {
-    isFininshed = true;
     Widget multiExpandaText(List<List<String>> content) {
       List<ExpansionPanelRadio> txtbox = [];
       for (var ctn in content) {

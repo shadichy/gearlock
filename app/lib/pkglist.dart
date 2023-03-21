@@ -4,13 +4,12 @@ import 'package:animations/animations.dart';
 import 'package:gearlock/package.dart';
 import 'package:gearlock/searchpkg.dart';
 
-List<Widget> lastVisited = [const SizedBox()];
-
 class PkgList extends GearStatefulWidget {
-  const PkgList({
+  PkgList({
     super.key,
     required super.callbackAdd,
     required super.callGoBack,
+    required super.preventBack,
   });
 
   @override
@@ -21,19 +20,16 @@ class _PkgListState extends State<PkgList> {
   // late Widget currentPage;
   late final void Function(GearStatefulWidget page) callbackAdd;
   late final void Function() callGoBack;
-  late bool isFininshed;
 
   @override
   void initState() {
     super.initState();
     callbackAdd = widget.callbackAdd;
     callGoBack = widget.callGoBack;
-    isFininshed = widget.isFininshed;
   }
 
   @override
   Widget build(BuildContext context) {
-    isFininshed = true;
     Widget packageBox(String appTitle, String appSize, Widget appIcon) {
       return OpenContainer(
         closedBuilder: (context, closedF) => Container(
@@ -164,16 +160,22 @@ class _PkgListState extends State<PkgList> {
             ],
           ),
         ),
-        openBuilder: (context, openF) =>
-            SearchPkg(callbackAdd: callbackAdd, callGoBack: callGoBack),
+        openBuilder: (context, openF) => SearchPkg(
+          callbackAdd: callbackAdd,
+          callGoBack: callGoBack,
+          preventBack: () {},
+        ),
         closedElevation: 0,
         transitionDuration: const Duration(milliseconds: 500),
         transitionType: ContainerTransitionType.fadeThrough,
       ),
       ListTile(
         onTap: () {
-          callbackAdd(
-              SearchPkg(callbackAdd: callbackAdd, callGoBack: callGoBack));
+          callbackAdd(SearchPkg(
+            callbackAdd: callbackAdd,
+            callGoBack: callGoBack,
+            preventBack: () {},
+          ));
         },
         leading: const Icon(
           Icons.add,
@@ -254,28 +256,12 @@ class _PkgListState extends State<PkgList> {
         ),
       ),
     ];
-    lastVisited[0] = (ListView.builder(
+    return ListView.builder(
       itemCount: body.length,
       itemBuilder: (context, index) {
         return body[index];
       },
       physics: const BouncingScrollPhysics(),
-    ));
-    // currentPage = lastVisited.last;
-    return WillPopScope(
-      onWillPop: () async {
-        lastVisited.removeLast();
-        if (lastVisited.isEmpty) return true;
-        return false;
-      },
-      child: PageTransitionSwitcher(
-        transitionBuilder: (child, anim1, anim2) => FadeThroughTransition(
-          animation: anim1,
-          secondaryAnimation: anim2,
-          child: child,
-        ),
-        child: lastVisited[lastVisited.length - 1],
-      ),
     );
   }
 }

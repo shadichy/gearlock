@@ -127,12 +127,17 @@ Widget simpleTextBox(context, String title, String content) {
 class GearStatefulWidget extends StatefulWidget {
   final void Function(GearStatefulWidget page) callbackAdd;
   final void Function() callGoBack;
-  final bool isFininshed;
-  const GearStatefulWidget({
+  final void Function() preventBack;
+  bool isFininshed;
+  void handleBack() {
+    isFininshed ? callGoBack() : preventBack();
+  }
+  GearStatefulWidget({
     super.key,
     required this.callbackAdd,
     required this.callGoBack,
-    this.isFininshed = false,
+    required this.preventBack,
+    this.isFininshed = true,
   });
 
   @override
@@ -140,10 +145,8 @@ class GearStatefulWidget extends StatefulWidget {
 }
 
 class _GearStatefulWidgetState extends State<GearStatefulWidget> {
-  late bool isFininshed;
   @override
   void initState() {
-    isFininshed = false;
     super.initState();
   }
   

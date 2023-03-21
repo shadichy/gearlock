@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gearlock/dlpkg.dart';
 import 'dart:math';
 
 import 'package:gearlock/global_widgets.dart';
@@ -32,10 +33,11 @@ class PkgByKeyword {
 }
 
 class SearchPkg extends GearStatefulWidget {
-  const SearchPkg({
+  SearchPkg({
     super.key,
     required super.callbackAdd,
     required super.callGoBack,
+    required super.preventBack,
   });
 
   @override
@@ -45,18 +47,37 @@ class SearchPkg extends GearStatefulWidget {
 class _SearchPkgState extends State<SearchPkg> {
   late final void Function(GearStatefulWidget page) callbackAdd;
   late final void Function() callGoBack;
-  late bool isFininshed;
+
   @override
   void initState() {
     super.initState();
     callbackAdd = widget.callbackAdd;
     callGoBack = widget.callGoBack;
-    isFininshed = widget.isFininshed;
+  }
+
+  void goToSearch() {
+    showSearch(
+      context: context,
+      delegate: SearchBox(
+        callbackAdd: callbackAdd,
+        callGoBack: callGoBack,
+      ),
+    );
+  }
+
+  void backToSearch() {}
+
+  void goToDownloadPackage(String appUrl) {
+    callbackAdd(PackageDownload(
+      callbackAdd: callbackAdd,
+      callGoBack: callGoBack,
+      preventBack: () {},
+      appUrl: appUrl,
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
-    isFininshed = true;
     List<Widget> body = [
       Container(
         height: 54,
@@ -69,9 +90,7 @@ class _SearchPkgState extends State<SearchPkg> {
           children: [
             IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                callGoBack();
-              },
+              onPressed: () => callGoBack(),
               color: const Color(0xff303f9f),
               iconSize: 24,
               splashRadius: 24,
@@ -79,14 +98,7 @@ class _SearchPkgState extends State<SearchPkg> {
             ),
             Expanded(
               child: ElevatedButton(
-                onPressed: () {
-                  showSearch(
-                      context: context,
-                      delegate: SearchBox(
-                        callbackAdd: callbackAdd,
-                        callGoBack: callGoBack,
-                      ));
-                },
+                onPressed: goToSearch,
                 style: ElevatedButton.styleFrom(
                   // padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
                   // minimumSize: Size(MediaQuery.of(context).size.width * .7, 36),
@@ -115,10 +127,8 @@ class _SearchPkgState extends State<SearchPkg> {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.search_rounded),
-              onPressed: () {
-                //
-              },
+              icon: const Icon(Icons.more_vert),
+              onPressed: () {},
               color: const Color(0xff303f9f),
               iconSize: 24,
               splashRadius: 24,
@@ -174,6 +184,8 @@ class SearchBox extends SearchDelegate {
         keyword: query,
         callbackAdd: callbackAdd,
         callGoBack: callGoBack,
+        close: close,
+        preventBack: () {},
       );
 
   @override
@@ -183,7 +195,15 @@ class SearchBox extends SearchDelegate {
       itemCount: matchQuery.length,
       itemBuilder: (context, index) => (matchQuery[index] is PkgByKeyword)
           ? ListTile(
-              // onTap: () {},
+              onTap: () {
+                close(context, null);
+                callbackAdd(PackageDownload(
+                  callbackAdd: callbackAdd,
+                  callGoBack: callGoBack,
+                  preventBack: () {},
+                  appUrl: "",
+                ));
+              },
               leading: Image(
                 image: NetworkImage(matchQuery[index].icon),
                 errorBuilder: (context, error, stackTrace) => const Icon(
@@ -238,11 +258,14 @@ class SearchBox extends SearchDelegate {
 
 class SearchResultsOf extends GearStatefulWidget {
   final String keyword;
-  const SearchResultsOf({
+  final void Function(BuildContext context, dynamic result) close;
+  SearchResultsOf({
     super.key,
     required super.callbackAdd,
     required super.callGoBack,
     required this.keyword,
+    required this.close,
+    required super.preventBack,
   });
 
   @override
@@ -251,10 +274,18 @@ class SearchResultsOf extends GearStatefulWidget {
 
 class _SearchResultsOfState extends State<SearchResultsOf> {
   late final String keyword;
+
+  late final void Function(GearStatefulWidget page) callbackAdd;
+  late final void Function() callGoBack;
+  late final void Function(BuildContext context, dynamic result) close;
   @override
   void initState() {
     super.initState();
+    callbackAdd = widget.callbackAdd;
+    callGoBack = widget.callGoBack;
     keyword = widget.keyword;
+
+    close = widget.close;
   }
 
   @override
@@ -262,7 +293,13 @@ class _SearchResultsOfState extends State<SearchResultsOf> {
     List<Widget> body = [
       ElevatedButton(
         onPressed: () {
-          //
+          close(context, null);
+          callbackAdd(PackageDownload(
+            callbackAdd: callbackAdd,
+            callGoBack: callGoBack,
+            appUrl: "",
+            preventBack: () {},
+          ));
         },
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),

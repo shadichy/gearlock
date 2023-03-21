@@ -48,12 +48,14 @@ class _MainClassState extends State<MainClass> {
   }
 
   void callbackAdd(GearStatefulWidget page) {
-    setState(() {
-      lastVisited.add(GearPage(
-        tab: _selectedTab,
-        page: page,
-      ));
-    });
+    if (checkProg()) {
+      setState(() {
+        lastVisited.add(GearPage(
+          tab: _selectedTab,
+          page: page,
+        ));
+      });
+    }
     // print(lastVisited);
   }
 
@@ -62,10 +64,12 @@ class _MainClassState extends State<MainClass> {
   List<GearPage> lastVisited = [];
 
   void onItemTapped(int t) {
-    setState(() {
-      _selectedTab = t;
-    });
-    callbackAdd(defaultRoutes[_selectedTab]);
+    if (checkProg()) {
+      setState(() {
+        _selectedTab = t;
+      });
+      callbackAdd(defaultRoutes[_selectedTab]);
+    }
   }
 
   // void goBack(int t) {
@@ -77,19 +81,39 @@ class _MainClassState extends State<MainClass> {
   }
 
   void callGoBack() {
-    setState(() {
-      lastVisited.removeLast();
-      if (lastVisited.isNotEmpty) _selectedTab = lastVisited.last.tab;
-    });
+    if (checkProg()) {
+      setState(() {
+        lastVisited.removeLast();
+        if (lastVisited.isNotEmpty) _selectedTab = lastVisited.last.tab;
+      });
+    } else {
+      lastVisited.last.page.handleBack();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     defaultRoutes = [
-      HomeScreen(callbackAdd: callbackAdd, callGoBack: callGoBack),
-      SysInfoScreen(callbackAdd: callbackAdd, callGoBack: callGoBack),
-      PkgList(callbackAdd: callbackAdd, callGoBack: callGoBack),
-      AboutPage(callbackAdd: callbackAdd, callGoBack: callGoBack),
+      HomeScreen(
+        callbackAdd: callbackAdd,
+        callGoBack: callGoBack,
+        preventBack: () {},
+      ),
+      SysInfoScreen(
+        callbackAdd: callbackAdd,
+        callGoBack: callGoBack,
+        preventBack: () {},
+      ),
+      PkgList(
+        callbackAdd: callbackAdd,
+        callGoBack: callGoBack,
+        preventBack: () {},
+      ),
+      AboutPage(
+        callbackAdd: callbackAdd,
+        callGoBack: callGoBack,
+        preventBack: () {},
+      ),
     ];
     GearPage homePage = GearPage(tab: 0, page: defaultRoutes[0]);
     lastVisited.isEmpty ? lastVisited.add(homePage) : lastVisited[0] = homePage;

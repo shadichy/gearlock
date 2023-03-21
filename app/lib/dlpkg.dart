@@ -1,28 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:gearlock/global_widgets.dart';
 
-class TestTemplate extends GearStatefulWidget {
-  const TestTemplate({
+class PackageDownload extends GearStatefulWidget {
+  final String appUrl;
+  PackageDownload({
     super.key,
     required super.callbackAdd,
     required super.callGoBack,
+    required this.appUrl,
+    required super.preventBack,
   });
 
   @override
-  State<TestTemplate> createState() => _TestTemplateState();
+  State<PackageDownload> createState() => _PackageDownloadState();
 }
 
-class _TestTemplateState extends State<TestTemplate> {
-  late bool isFininshed;
+class _PackageDownloadState extends State<PackageDownload> {
+  late final void Function() callGoBack;
+
   @override
   void initState() {
     super.initState();
-    isFininshed = widget.isFininshed;
+    callGoBack = widget.callGoBack;
   }
 
   @override
   Widget build(BuildContext context) {
-    isFininshed = true;
     List<Widget> body = [
       Padding(
         padding: const EdgeInsets.all(8),
@@ -33,7 +36,7 @@ class _TestTemplateState extends State<TestTemplate> {
           children: [
             IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () {},
+              onPressed: () => callGoBack,
               color: const Color(0xff212435),
               iconSize: 24,
               splashRadius: 24,

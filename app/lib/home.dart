@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:gearlock/global_widgets.dart';
 
 class HomeScreen extends GearStatefulWidget {
-  const HomeScreen({
+  HomeScreen({
     super.key,
     required super.callbackAdd,
     required super.callGoBack,
+    required super.preventBack,
   });
 
   @override
@@ -13,16 +14,13 @@ class HomeScreen extends GearStatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late bool isFininshed;
   @override
   void initState() {
-    isFininshed = widget.isFininshed;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    isFininshed = true;
     Widget homeActions(List<List> childItems) {
       List<Widget> children = [];
       for (var i = 0; i < childItems.length; i++) {
