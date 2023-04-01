@@ -72,5 +72,5 @@ while true; do
 	mount.blk "$SEL_BLK" "$PREFIX/$MOUNTP_NAME"
 
 	# On success
-	geco "\n++ ${_successfully_mounted_/@DUMMY@/$(basename $SEL_BLK)} ${BRED}$PREFIX/$MOUNTP_NAME${RC} ..." && break
+	geco "\n++ ${_successfully_mounted_/@DUMMY@/"$(basename "$SEL_BLK")"} ${BRED}$PREFIX/$MOUNTP_NAME${RC} ..." && break
 done

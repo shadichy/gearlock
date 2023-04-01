@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:gearlock/global_widgets.dart';
+import 'package:gearlock/core/global_widgets.dart';
 
-class AppSettings extends StatefulWidget {
-  final void Function(Widget page) callbackAdd;
+class AppSettings extends GearStatefulWidget {
   const AppSettings({
     super.key,
-    required this.callbackAdd,
+    required super.callbackAdd,
+    required super.callGoBack,
   });
 
   @override
@@ -22,7 +22,7 @@ class _AppSettingsState extends State<AppSettings> {
   Widget build(BuildContext context) {
     List<Widget> body = [];
     return ListView.builder(
-      itemCount: (body.length < 20) ? body.length : 20,
+      itemCount: body.length,
       itemBuilder: (context, index) {
         return body[index];
       },

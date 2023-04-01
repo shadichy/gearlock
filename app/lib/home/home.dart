@@ -1,12 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:gearlock/global_widgets.dart';
+import 'package:gearlock/core/global_widgets.dart';
+import 'package:gearlock/core/home_widgets.dart';
+import 'package:gearlock/features/devzone/devzone.dart';
+import 'package:gearlock/features/devzone/log.dart';
+import 'package:gearlock/features/google/googleless.dart';
+import 'package:gearlock/features/hardware/core.dart';
+import 'package:gearlock/features/misc/core.dart';
+import 'package:gearlock/features/misc/su_handler.dart';
+import 'package:gearlock/features/pkg/searchpkg.dart';
+import 'package:gearlock/features/fs/core.dart';
+import 'package:gearlock/features/systemmask/core.dart';
+import 'package:gearlock/home/pkglist.dart';
+
+class GearAction {
+  final String title;
+  final Widget icon;
+  final void Function() pressed;
+  const GearAction({
+    required this.title,
+    required this.icon,
+    required this.pressed,
+  });
+}
 
 class HomeScreen extends GearStatefulWidget {
-  HomeScreen({
+  const HomeScreen({
     super.key,
     required super.callbackAdd,
     required super.callGoBack,
-    required super.preventBack,
   });
 
   @override
@@ -14,18 +35,25 @@ class HomeScreen extends GearStatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late final void Function(GearStatefulWidget page) callbackAdd;
+  late final void Function() callGoBack;
+
   @override
   void initState() {
     super.initState();
+    callbackAdd = widget.callbackAdd;
+    callGoBack = widget.callGoBack;
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget homeActions(List<List> childItems) {
+    void Function() goto(StatefulWidget page) => () => Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => page));
+    Widget homeActions(List<GearAction> childItems) {
       List<Widget> children = [];
       for (var i = 0; i < childItems.length; i++) {
         children.add(ElevatedButton.icon(
-          onPressed: () => {},
+          onPressed: childItems[i].pressed,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xffffffff),
             elevation: 0,
@@ -45,12 +73,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       : BorderRadius.zero,
             ),
           ),
-          icon: childItems[i][1],
+          icon: childItems[i].icon,
           label: Padding(
             // padding: const EdgeInsets.all(8),
             padding: const EdgeInsets.all(0),
             child: Text(
-              childItems[i][0],
+              childItems[i].title,
               textAlign: TextAlign.start,
               overflow: TextOverflow.clip,
               style: const TextStyle(
@@ -236,111 +264,137 @@ class _HomeScreenState extends State<HomeScreen> {
       headingText("Quick Actions", 0xff3f51b5),
       separaText("Packages"),
       homeActions([
-        [
-          "Install package",
-          const Icon(
-            Icons.add,
-            color: Color(0xff212435),
-            size: 24,
-          )
-        ],
-        [
-          "All packages (48)",
-          const Icon(
+        GearAction(
+            title: "Install package",
+            icon: const Icon(
+              Icons.add,
+              color: Color(0xff212435),
+              size: 24,
+            ),
+            pressed: () {
+              callbackAdd(SearchPkg(
+                callbackAdd: callbackAdd,
+                callGoBack: callGoBack,
+              ));
+            }),
+        GearAction(
+          title: "All packages (48)",
+          icon: const Icon(
             Icons.widgets_outlined,
             color: Color(0xff212435),
             size: 24,
-          )
-        ]
+          ),
+          pressed: () {
+            callbackAdd(PkgList(
+              callbackAdd: callbackAdd,
+              callGoBack: callGoBack,
+            ));
+          },
+        )
       ]),
       separaText("Filesystem operations"),
       homeActions([
-        [
-          "Backup filesystem",
-          const Icon(
+        GearAction(
+          title: "Backup filesystem",
+          icon: const Icon(
             Icons.sync,
             color: Color(0xff212435),
             size: 24,
-          )
-        ],
-        [
-          "Restore from Backups",
-          const Icon(
+          ),
+          pressed: goto(const FsCore(mode: FsPageMode.backup)),
+        ),
+        GearAction(
+          title: "Restore from Backups",
+          icon: const Icon(
             Icons.history,
             color: Color(0xff212435),
             size: 24,
-          )
-        ],
-        [
-          "Wipe filesystem",
-          const Icon(
+          ),
+          pressed: goto(const FsCore(mode: FsPageMode.restore)),
+        ),
+        GearAction(
+          title: "Wipe filesystem",
+          icon: const Icon(
             Icons.restart_alt,
             color: Color(0xff212435),
             size: 24,
-          )
-        ]
+          ),
+          pressed: goto(const FsCore(mode: FsPageMode.wipe)),
+        ),
       ]),
       separaText("Tweaks"),
       homeActions([
-        [
-          "SU handler",
-          const Icon(
+        GearAction(
+          title: "SU handler",
+          icon: const Icon(
             Icons.tag,
             color: Color(0xff212435),
             size: 24,
-          )
-        ],
-        [
-          "Google",
-          const ImageIcon(
+          ),
+          pressed: goto(const SuHandler()),
+        ),
+        GearAction(
+          title: "Google",
+          icon: const ImageIcon(
             AssetImage("images/Google__G__Logo.png"),
             size: 24,
             color: Color(0xff212435),
-          )
-        ],
-        [
-          "Hardware tweaks",
-          const Icon(
+          ),
+          pressed: goto(const GoogleLess()),
+        ),
+        GearAction(
+          title: "Hardware tweaks",
+          icon: const Icon(
             Icons.memory,
             color: Color(0xff212435),
             size: 24,
-          )
-        ]
-      ]),
-      separaText("SystemMask"),
-      homeActions([
-        [
-          "SystemMask Dashboard",
-          const Icon(
+          ),
+          pressed: goto(const HwTweaksDashboard()),
+        ),
+        GearAction(
+          title: "SystemMask",
+          icon: const Icon(
             Icons.dashboard_outlined,
             color: Color(0xff212435),
             size: 24,
-          )
-        ],
+          ),
+          pressed: goto(const SmaskDashboard()),
+        ),
+        GearAction(
+          title: "Misc",
+          icon: const Icon(
+            Icons.miscellaneous_services,
+            color: Color(0xff212435),
+            size: 24,
+          ),
+          pressed: goto(const MiscDashboard()),
+        ),
       ]),
       separaText("For developers"),
       homeActions([
-        [
-          "Developers Zone",
-          const Icon(
+        GearAction(
+          title: "Developers Zone",
+          icon: const Icon(
             Icons.code,
             color: Color(0xff212435),
             size: 24,
-          )
-        ],
-        [
-          "Show logs",
-          const Icon(
+          ),
+          pressed: goto(const DevZone()),
+        ),
+        GearAction(
+          title: "Show logs",
+          icon: const Icon(
             Icons.bug_report_outlined,
             color: Color(0xff212435),
             size: 24,
-          )
-        ],
+          ),
+          pressed: goto(const ShowLog()),
+        ),
       ]),
     ];
 
     return ListView.builder(
-      itemCount: (body.length < 20) ? body.length : 20,
+      itemCount: body.length,
       itemBuilder: (context, index) {
         return body[index];
       },

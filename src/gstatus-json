@@ -46,12 +46,12 @@ echo "
 		\"buildNo\": \"$(getprop ro.build.display.id)\",
 		\"suHandler\": \"${suHandler}\",
 		$([ "$suHandler" = "Magisk" ] && geco "\"suVer\": \"$(magisk -v)\",")
-		\"googLess\": \"$(
+		\"gmsPrvd\": \"$(
 			gms=com.google.android.gms
-			{
-				! pm list package | grep -q "$gms" ||
-					pm dump $gms | grep -q "org.microg.gms"
-			} && geco "On" || geco "Off"
+			provider=Google
+			! pm list package | grep -q "$gms" && provider=None ||
+				pm dump $gms | grep -q "org.microg.gms" && provider=MicroG
+			geco "$provider"
 		)\",
 		$([ "${cpuArch##x86*}" = "" ] && [ -d /system/lib/arm ] && geco "\"armLayer\": \"On\",")
 		$([ -f "${nb:=$GHOME/status/native-bridge}" ] && geco "\"armType\": \"$(cat "$nb")\",")

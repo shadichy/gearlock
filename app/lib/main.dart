@@ -1,18 +1,17 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:gearlock/about.dart';
-import 'package:gearlock/global_widgets.dart';
-import 'package:gearlock/home.dart';
-import 'package:gearlock/glnotfound.dart';
-import 'package:gearlock/pkglist.dart';
-import 'package:gearlock/sysinfo.dart';
+import 'package:gearlock/home/about.dart';
+import 'package:gearlock/core/global_widgets.dart';
+import 'package:gearlock/home/home.dart';
+import 'package:gearlock/core/glnotfound.dart';
+import 'package:gearlock/home/pkglist.dart';
+import 'package:gearlock/home/sysinfo.dart';
 import 'package:animations/animations.dart';
 
 void main() {
   String xarg = "/system/bin/sh";
   // String xarg = "/gearlock/init-chroot";
-  bool hasGearLock =
-      Process.runSync('sh', ['-c', '[ -x "$xarg" ]']).exitCode == 0;
+  bool hasGearLock = Process.runSync('sh', ['-c', '[ -x "$xarg" ]']).exitCode == 0;
   runApp(
     MediaQuery(
       data: const MediaQueryData(),
@@ -47,73 +46,49 @@ class _MainClassState extends State<MainClass> {
     super.initState();
   }
 
-  void callbackAdd(GearStatefulWidget page) {
-    if (checkProg()) {
-      setState(() {
-        lastVisited.add(GearPage(
-          tab: _selectedTab,
-          page: page,
-        ));
-      });
-    }
-    // print(lastVisited);
-  }
-
   int _selectedTab = 0;
   List<GearStatefulWidget> defaultRoutes = [];
   List<GearPage> lastVisited = [];
 
-  void onItemTapped(int t) {
-    if (checkProg()) {
-      setState(() {
-        _selectedTab = t;
-      });
-      callbackAdd(defaultRoutes[_selectedTab]);
-    }
+  void callbackAdd(GearStatefulWidget page) {
+    setState(() {
+      lastVisited.add(GearPage(
+        tab: _selectedTab,
+        page: page,
+      ));
+    });
+    // print(lastVisited);
+  }
+
+  void _onItemTapped(int t) {
+    setState(() {
+      _selectedTab = t;
+      if (t==0) {
+        lastVisited.clear();
+      }
+    });
+    callbackAdd(defaultRoutes[_selectedTab]);
   }
 
   // void goBack(int t) {
   //   if (t == 0) lastVisited.clear();
   //   lastVisited.add(t);
   // }
-  bool checkProg() {
-    return lastVisited.last.page.isFininshed;
-  }
 
   void callGoBack() {
-    if (checkProg()) {
-      setState(() {
-        lastVisited.removeLast();
-        if (lastVisited.isNotEmpty) _selectedTab = lastVisited.last.tab;
-      });
-    } else {
-      lastVisited.last.page.handleBack();
-    }
+    setState(() {
+      lastVisited.removeLast();
+      if (lastVisited.isNotEmpty) _selectedTab = lastVisited.last.tab;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     defaultRoutes = [
-      HomeScreen(
-        callbackAdd: callbackAdd,
-        callGoBack: callGoBack,
-        preventBack: () {},
-      ),
-      SysInfoScreen(
-        callbackAdd: callbackAdd,
-        callGoBack: callGoBack,
-        preventBack: () {},
-      ),
-      PkgList(
-        callbackAdd: callbackAdd,
-        callGoBack: callGoBack,
-        preventBack: () {},
-      ),
-      AboutPage(
-        callbackAdd: callbackAdd,
-        callGoBack: callGoBack,
-        preventBack: () {},
-      ),
+      HomeScreen(callbackAdd: callbackAdd, callGoBack: callGoBack),
+      SysInfoScreen(callbackAdd: callbackAdd, callGoBack: callGoBack),
+      PkgList(callbackAdd: callbackAdd, callGoBack: callGoBack),
+      AboutPage(callbackAdd: callbackAdd, callGoBack: callGoBack),
     ];
     GearPage homePage = GearPage(tab: 0, page: defaultRoutes[0]);
     lastVisited.isEmpty ? lastVisited.add(homePage) : lastVisited[0] = homePage;
@@ -161,7 +136,7 @@ class _MainClassState extends State<MainClass> {
         showUnselectedLabels: true,
         showSelectedLabels: true,
         elevation: 0,
-        onTap: onItemTapped,
+        onTap: _onItemTapped,
       ),
     );
   }

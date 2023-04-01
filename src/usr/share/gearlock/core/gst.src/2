@@ -9,7 +9,7 @@ if [ ! -e "$TDIR" ] && [ -e "$G_P_S" ]; then
 	mv /data/app/*com.android.vending*/base.apk "$TDIR/external-gp.apk" >/dev/null 2>&1
 	mv "$G_P_S" "$TDIR"
 	mv "$SDIR/Phonesky" "$TDIR"
-	touch $STATDIR/goolm
+	touch "$STATDIR"/goolm
 	geco "\n+ Activated!"
 	geco "\n+ Trigger this function again to deactivate it"
 	greboot

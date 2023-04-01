@@ -55,15 +55,12 @@ if ! ls "$OROOT/system."* >/dev/null 2>&1 || ! test "$(stat -L --printf="%s" "$O
 fi
 
 if [[ "$ANDROID_VER" =~ [4-7] ]]; then
-
     # ext
     if mount | grep "$GRROOT_DIR" | grep -q "type ext"; then
         decom_sys
-    else
-        # fuseblk
+    else # fuseblk
         extend_system_img
     fi
-
 else
     extend_system_img
 fi

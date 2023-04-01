@@ -123,7 +123,7 @@ geco " ### It's recommended that you take a backup of your SystemFS from GearLoc
 read -n1 -p "$(geco "\n++++ Sure to debloat ?  [${BGREEN}Y${RC} / n]  ")" c
 
 rm_bloat() {
-	geco "\n>>>> Removing ${PINK}$bloat${RC}\c" && rm -r $1/"$bloat" 2>/dev/null || geco " :: ${PINK}Failed${RC}"
+	geco "\n>>>> Removing ${PINK}$bloat${RC}\c" && rm -r "$1/$bloat" 2>/dev/null || geco " :: ${PINK}Failed${RC}"
 }
 
 case $c in

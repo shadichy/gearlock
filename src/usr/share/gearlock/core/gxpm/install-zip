@@ -12,7 +12,7 @@ rm -rf "$ZIP_META_TMP"
 # Setup sbin shells
 mkdir -p /sbin
 for shell in ash sh; do
-	ln -srf "$(command -v gbash)" /sbin/$shell
+	ln -srf "$(command -v bash)" /sbin/$shell
 done
 
 # Define functions
@@ -59,7 +59,7 @@ chmod -R 777 "$ZIP_META_TMP" || signal_failed
 cd "$ZIP_META_TMP" && (
 	META-INF/com/google/android/update-binary GearLock $FAKEFD "$INPUT_ZIP" >"$ZIP_LOG" 2>&1
 	echo $? >"$ZIP_RET_HOLDER"
-	sleep 2 && kill "$(ps -fA | grep "tail -c +0 -f" | grep -v grep | awk '{print $2}')" 2>/dev/null # Kill ziplog stdout and stderr
+	sleep 2 && kill "$(pgrep "tail -c +0 -f")" 2>/dev/null # Kill ziplog stdout and stderr
 ) &
 
 tail -c +0 -f "$ZIP_LOG" | stdbuf -o0 grep "ui_print .*" | sed "s|ui_print||"

@@ -83,6 +83,6 @@ else
 	--gearlock-mesa-pkg) main "${1#--}" ;;
 	--gearlock-core-pkg) main "${1#--}" ;;
 	--help | -h) show_help ;;
-	*) echo -e "${0##*/}: unknown option: "$* && show_help ;;
+	*) echo -e "${0##*/}: unknown option: $*" && show_help ;;
 	esac
 fi

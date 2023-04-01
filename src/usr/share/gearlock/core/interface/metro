@@ -32,33 +32,33 @@ metroUi_menu_body() {
 	}
 
 	calcTextDialogSize "$(<"$menu_src")"
-	test "$RANDOM" -lt "$RANDOM" && topsep="-" || topsep="+"
 	i=1 W=()
 
 	while read -r line; do
 		W+=($((i++)) "$line")
 	done <"$menu_src"
 
-	c="$(dialog --clear --backtitle "$(gecpc "${_press_esc_metroui_info_}" "$topsep")" \
+	c="$(dialog --clear \
+		--backtitle "$(gecpc "${_press_esc_metroui_info_}" "-")" \
 		--title "  GearLock  " --ok-label Go --extra-button --extra-label Status \
 		--cancel-label Help --help-button --help-label More --menu "\n    \n" \
-		$(($RECMD_HEIGHT + 8)) $(($RECMD_WIDTH + 35)) 17 "${W[@]}" \
+		$((RECMD_HEIGHT + 8)) $((RECMD_WIDTH + 35)) 17 "${W[@]}" \
 		3>&2 2>&1 1>&3)"
 	RETC=$?
 
-	if [ "$RETC" = "0" ]; then
-		clear && test "$src" != "main.src" && cf small
+	case "$RETC" in
+	0)
+		clear
+		[ "$src" != "main.src" ] && cf small
 		"$CORE/$src/$c"
-		test "$src" != "main.src" && pause && cf big
-
-	elif [ "$RETC" = "3" ]; then # Status button
+		[ "$src" != "main.src" ] && pause && cf big
+		;;
+	3) # Status button
 		cf small && gstatus
 		pause && cf big
-
-	elif [ "$RETC" = "1" ]; then # Help button
-		clear && cf small && geco "${_ui_help_msg_}" && pause && cf big
-
-	elif [ $RETC = 2 ]; then # Extras button
+		;;
+	1) clear && cf small && geco "${_ui_help_msg_}" && pause && cf big ;; # Help button
+	2)                                                                    # Extras button
 		while true; do
 			cmd=(dialog --keep-tite --cancel-label Back --menu "More options" 15 60 15)
 			choices=$("${cmd[@]}" \
@@ -71,9 +71,7 @@ metroUi_menu_body() {
 			test "$?" == "1" || test "$?" == "255" && break
 			for choice in $choices; do
 				case $choice in
-				1)
-					msgbox "GearLock About" "Some words" "${_ui_about_msg_}" 28 113
-					;;
+				1) msgbox "GearLock About" "Some words" "${_ui_about_msg_}" 28 113 ;;
 				2)
 					clear && cf small && "$CORE/update"
 					pause && cf big
@@ -83,12 +81,8 @@ metroUi_menu_body() {
 					"$CORE/devz"
 					cf big
 					;;
-				4)
-					"$CORE/settings"
-					;;
-				5)
-					msgbox "gearrec" "Info" "${_gearrec_info_}"
-					;;
+				4) "$CORE/settings" ;;
+				5) msgbox "gearrec" "Info" "${_gearrec_info_}" ;;
 				6)
 					if yesno "${_googleless_mode_}" "Do you want to activate it ?" "${_googleless_mode_info_}" 10 60; then
 						msgbox "GoogleLess-Mode" " Activating " "$(
@@ -107,15 +101,14 @@ metroUi_menu_body() {
 				esac
 			done
 		done
+		;;
+	255)
+		[ "$src" != "main.src" ] && exit 0
+		msgbox "Leaving GearLock" "Bye bye" "\nSee ya later ;)"
+		exit_grl
+		;;
+	esac
 
-	elif [ "$RETC" = "255" ]; then
-		if [ "$src" = "main.src" ]; then
-			msgbox "Leaving GearLock" "Bye bye" "\nSee ya later ;)"
-			exit_grl
-		else
-			exit 0
-		fi
-	fi
 }
 
 # Export fun

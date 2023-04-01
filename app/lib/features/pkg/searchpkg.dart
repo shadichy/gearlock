@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:gearlock/dlpkg.dart';
+import 'package:gearlock/features/pkg/getpkg.dart';
 import 'dart:math';
-
-import 'package:gearlock/global_widgets.dart';
-// import 'package:gearlock/global_widgets.dart';
-// import 'package:gearlock/searchresult.dart';
+import 'package:gearlock/core/global_widgets.dart';
 
 List terms = ["gearlock", "lmao", "bruh"];
 
 List searchKeyword(String query) {
   List matchQuery = [
     const PkgByKeyword(
-        icon:
-            "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
-        name: "gearlock")
+      icon: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
+      name: "gearlock",
+      url: "",
+    )
   ];
   for (var keyword in terms) {
     if (keyword.toLowerCase().contains(query.trim().toLowerCase())) {
@@ -26,18 +24,19 @@ List searchKeyword(String query) {
 class PkgByKeyword {
   final String icon;
   final String name;
+  final String url;
   const PkgByKeyword({
     required this.icon,
     required this.name,
+    required this.url,
   });
 }
 
 class SearchPkg extends GearStatefulWidget {
-  SearchPkg({
+  const SearchPkg({
     super.key,
     required super.callbackAdd,
     required super.callGoBack,
-    required super.preventBack,
   });
 
   @override
@@ -45,35 +44,11 @@ class SearchPkg extends GearStatefulWidget {
 }
 
 class _SearchPkgState extends State<SearchPkg> {
-  late final void Function(GearStatefulWidget page) callbackAdd;
   late final void Function() callGoBack;
-
   @override
   void initState() {
     super.initState();
-    callbackAdd = widget.callbackAdd;
     callGoBack = widget.callGoBack;
-  }
-
-  void goToSearch() {
-    showSearch(
-      context: context,
-      delegate: SearchBox(
-        callbackAdd: callbackAdd,
-        callGoBack: callGoBack,
-      ),
-    );
-  }
-
-  void backToSearch() {}
-
-  void goToDownloadPackage(String appUrl) {
-    callbackAdd(PackageDownload(
-      callbackAdd: callbackAdd,
-      callGoBack: callGoBack,
-      preventBack: () {},
-      appUrl: appUrl,
-    ));
   }
 
   @override
@@ -90,7 +65,7 @@ class _SearchPkgState extends State<SearchPkg> {
           children: [
             IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () => callGoBack(),
+              onPressed: callGoBack,
               color: const Color(0xff303f9f),
               iconSize: 24,
               splashRadius: 24,
@@ -98,7 +73,10 @@ class _SearchPkgState extends State<SearchPkg> {
             ),
             Expanded(
               child: ElevatedButton(
-                onPressed: goToSearch,
+                onPressed: () => showSearch(
+                  context: context,
+                  delegate: SearchBox(),
+                ),
                 style: ElevatedButton.styleFrom(
                   // padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
                   // minimumSize: Size(MediaQuery.of(context).size.width * .7, 36),
@@ -138,7 +116,7 @@ class _SearchPkgState extends State<SearchPkg> {
       ),
     ];
     return ListView.builder(
-      itemCount: (body.length < 20) ? body.length : 20,
+      itemCount: body.length,
       itemBuilder: (context, index) {
         return body[index];
       },
@@ -148,13 +126,6 @@ class _SearchPkgState extends State<SearchPkg> {
 }
 
 class SearchBox extends SearchDelegate {
-  final void Function(GearStatefulWidget page) callbackAdd;
-  final void Function() callGoBack;
-  SearchBox({
-    required this.callbackAdd,
-    required this.callGoBack,
-  });
-
   @override
   List<Widget>? buildActions(BuildContext context) => [
         IconButton(
@@ -180,125 +151,12 @@ class SearchBox extends SearchDelegate {
       );
 
   @override
-  Widget buildResults(BuildContext context) => SearchResultsOf(
-        keyword: query,
-        callbackAdd: callbackAdd,
-        callGoBack: callGoBack,
-        close: close,
-        preventBack: () {},
-      );
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    List matchQuery = searchKeyword(query);
-    return ListView.builder(
-      itemCount: matchQuery.length,
-      itemBuilder: (context, index) => (matchQuery[index] is PkgByKeyword)
-          ? ListTile(
-              onTap: () {
-                close(context, null);
-                callbackAdd(PackageDownload(
-                  callbackAdd: callbackAdd,
-                  callGoBack: callGoBack,
-                  preventBack: () {},
-                  appUrl: "",
-                ));
-              },
-              leading: Image(
-                image: NetworkImage(matchQuery[index].icon),
-                errorBuilder: (context, error, stackTrace) => const Icon(
-                  Icons.grid_view,
-                  size: 32,
-                ),
-                width: 32,
-                height: 32,
-              ),
-              title: Text(
-                matchQuery[index].name,
-                style: const TextStyle(fontWeight: FontWeight.w500),
-              ),
-            )
-          : ListTile(
-              onTap: () {
-                query = matchQuery[index].toString();
-                showResults(context);
-              },
-              leading: const SizedBox(
-                width: 32,
-                height: 32,
-              ),
-              title: Text(matchQuery[index].toString()),
-              trailing: IconButton(
-                onPressed: () {
-                  query = "${matchQuery[index]} ";
-                },
-                icon: Transform(
-                  alignment: Alignment.center,
-                  transform: Matrix4.rotationY(pi),
-                  child: const Icon(Icons.arrow_outward),
-                ),
-                iconSize: 24,
-                splashRadius: .00000001,
-                padding: const EdgeInsets.all(0),
-                color: const Color(0xaa000000),
-              ),
-            ),
-    );
-  }
-
-  @override
-  ThemeData appBarTheme(BuildContext context) =>
-      super.appBarTheme(context).copyWith(
-            appBarTheme: super.appBarTheme(context).appBarTheme.copyWith(
-                  elevation: 0.0,
-                  toolbarHeight: 54,
-                ),
-          );
-}
-
-class SearchResultsOf extends GearStatefulWidget {
-  final String keyword;
-  final void Function(BuildContext context, dynamic result) close;
-  SearchResultsOf({
-    super.key,
-    required super.callbackAdd,
-    required super.callGoBack,
-    required this.keyword,
-    required this.close,
-    required super.preventBack,
-  });
-
-  @override
-  State<SearchResultsOf> createState() => _SearchResultsOfState();
-}
-
-class _SearchResultsOfState extends State<SearchResultsOf> {
-  late final String keyword;
-
-  late final void Function(GearStatefulWidget page) callbackAdd;
-  late final void Function() callGoBack;
-  late final void Function(BuildContext context, dynamic result) close;
-  @override
-  void initState() {
-    super.initState();
-    callbackAdd = widget.callbackAdd;
-    callGoBack = widget.callGoBack;
-    keyword = widget.keyword;
-
-    close = widget.close;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    List<Widget> body = [
-      ElevatedButton(
+  Widget buildResults(BuildContext context) {
+    Widget appThumb(String url) {
+      return ElevatedButton(
         onPressed: () {
-          close(context, null);
-          callbackAdd(PackageDownload(
-            callbackAdd: callbackAdd,
-            callGoBack: callGoBack,
-            appUrl: "",
-            preventBack: () {},
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => PackageDownload(appUrl: url),
           ));
         },
         style: ElevatedButton.styleFrom(
@@ -371,14 +229,80 @@ class _SearchResultsOfState extends State<SearchResultsOf> {
             ),
           ],
         ),
-      ),
-    ];
+      );
+    }
+
+    List<String> matchQuery = ["lmao", "mxay", "damn", "son"];
     return ListView.builder(
-      itemCount: (body.length < 20) ? body.length : 20,
+      itemCount: matchQuery.length,
       itemBuilder: (context, index) {
-        return body[index];
+        return appThumb(matchQuery[index]);
       },
       physics: const BouncingScrollPhysics(),
     );
   }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    List matchQuery = searchKeyword(query);
+    return ListView.builder(
+      itemCount: matchQuery.length,
+      itemBuilder: (context, i) => (matchQuery[i] is PkgByKeyword)
+          ? ListTile(
+              onTap: () {
+                close(context, null);
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => PackageDownload(appUrl: matchQuery[i].url),
+                ));
+              },
+              leading: Image(
+                image: NetworkImage(matchQuery[i].icon),
+                errorBuilder: (context, error, stackTrace) => const Icon(
+                  Icons.grid_view,
+                  size: 32,
+                ),
+                width: 32,
+                height: 32,
+              ),
+              title: Text(
+                matchQuery[i].name,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+            )
+          : ListTile(
+              onTap: () {
+                query = matchQuery[i].toString();
+                showResults(context);
+              },
+              leading: const SizedBox(
+                width: 32,
+                height: 32,
+              ),
+              title: Text(matchQuery[i].toString()),
+              trailing: IconButton(
+                onPressed: () {
+                  query = "${matchQuery[i]} ";
+                },
+                icon: Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.rotationY(pi),
+                  child: const Icon(Icons.arrow_outward),
+                ),
+                iconSize: 24,
+                splashRadius: .00000001,
+                padding: const EdgeInsets.all(0),
+                color: const Color(0xaa000000),
+              ),
+            ),
+    );
+  }
+
+  @override
+  ThemeData appBarTheme(BuildContext context) =>
+      super.appBarTheme(context).copyWith(
+            appBarTheme: super.appBarTheme(context).appBarTheme.copyWith(
+                  elevation: 0.0,
+                  toolbarHeight: 54,
+                ),
+          );
 }

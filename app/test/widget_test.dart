@@ -9,7 +9,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gearlock/glnotfound.dart';
+import 'package:gearlock/core/glnotfound.dart';
 
 // import 'package:gearlock/main.dart';
 

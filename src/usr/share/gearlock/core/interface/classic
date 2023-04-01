@@ -47,7 +47,7 @@ struct_interface_inload() {
 com_body() {
 	i=1 && echo -e
 	while read line; do
-		echo -e "${YELLOW}" && echo [$((i++))]. $line
+		echo -e "${YELLOW}" && echo [$((i++))]. "$line"
 	done <"$CORE/${src}/_lang_/_menu_${lang}" >"${t:="$GTMP/_cmenu"}" && gecca "$t" && echo -e "${RC}\n"
 }
 com_footer() {
@@ -94,7 +94,7 @@ com_rinput() {
 			"Deactivate it")
 				nout pm enable com.android.vending
 				nout pm enable com.google.android.gms
-				nout rm $GTMP/goolm
+				nout rm "$GTMP/goolm"
 				;;
 			"Exit")
 				break

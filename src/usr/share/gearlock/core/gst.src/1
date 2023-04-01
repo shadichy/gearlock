@@ -8,7 +8,7 @@ if [ ! -f "$DEPDIR/su-handler/magisksu.img" ] && [ ! -f "/sbin/magisk" ]; then
 	geco "You can install ${GREEN}Magisk${RC} from ${YELLOW}>> Main-Menu >> Extra misc. functions${RC}"
 	sleep 1
 	geco "Then you can switch in between ${RED}SuperSU${RC} and ${GREEN}MagiskSU${RC} ..."
-	ckdirex $DEPDIR/su-handler 755
+	ckdirex "$DEPDIR"/su-handler 755
 	rsync "$GRROOT/ramdisk.img" "$DEPDIR/su-handler/supersu.img"
 	exit 0
 fi
@@ -29,17 +29,17 @@ main() {
 			geco "Done !"
 			;;
 		"Magisk-Su")
-			if [ ! -z "$(mount | grep "$GRROOT_DIR" | grep "ext4")" ]; then
+			if mount | grep "$GRROOT_DIR" | grep -q "ext4"; then
 				if [ ! -e "$GRROOT/adb" ]; then
-					ln -sr /data/adb $GRROOT
+					ln -sr /data/adb "$GRROOT"
 				fi
 			fi
 
 			if [ ! -d "/data/data/com.topjohnwu.magisk" ]; then
 				geco "Installing magisk app:\c"
-				pm -r install $DEPDIR/magisk.apk
+				pm -r install "$DEPDIR"/magisk.apk
 			fi
-			nout gclone $SDIR/magisksu.img $GRROOT/ramdisk.img
+			nout gclone "$SDIR"/magisksu.img "$GRROOT"/ramdisk.img
 			geco "Done !"
 			#         geco "Applying backwards-compatibility for magisksu [This will make magisk support old *supersu only apps* also]"
 			#         sleep 3

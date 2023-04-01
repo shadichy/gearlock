@@ -43,8 +43,8 @@ metro_backup_ui() {
 			30 150 40 \
 			"${W[@]}" 3>&2 2>&1 1>&3)"
 		RETC=$?
-
-		if [ "$RETC" = "0" ]; then # Open button
+		case "$RETC" in
+		0) # Open button
 
 			TER="$(ls -1 "$PWD" | sed -n "$FILE_NUM p")"
 			if [ -d "$TER" ] && [ -n "$(ls -1 "$TER")" ]; then
@@ -63,15 +63,10 @@ metro_backup_ui() {
 			else
 				msgbox "Opps ..." " ${_info_} " "\n ${_folder_is_empty_}" 7 30
 			fi
-
-		elif
-			[ "$RETC" = "3" ]
-		then # Back button
-			cd ../
-		elif [ "$RETC" = "1" ]; then # View-Log button
-			view_backup_log
-
-		elif [ "$RETC" = "2" ] && is_make_fs; then # Select Folder
+			;;
+		3) cd .. ;;           # Back button
+		1) view_backup_log ;; # View-Log button
+		2)                    # Select Folder
 			TER="$(ls -1 "$PWD" | sed -n "${FILE_NUM/HELP/} p")"
 			if [ -d "$TER" ]; then
 				while true; do
@@ -86,10 +81,9 @@ metro_backup_ui() {
 			else
 				msgbox "${_beep_boop_}" " ${_notice_} " "\n ${_is_not_folder_/@DUMMY@/"$TER"}" 7 60
 			fi
-
-		elif [ "$RETC" = "255" ]; then # Exit call
-			break
-		fi
+			;;
+		255) break ;;
+		esac
 	done
 
 }

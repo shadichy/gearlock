@@ -2,13 +2,13 @@
 
 trap "cf big" EXIT
 cf small
-logo_gpkgman() { gecca $CORE/interface/assets/classic/header_gpkgman; }
+logo_gpkgman() { gecca "$CORE"/interface/assets/classic/header_gpkgman; }
 com_body_gpkgman() {
 	geco "\n\n"
 	ckdirex "$GRLOAD"
 	myarray=($(find "$GRLOAD" -maxdepth 1 -name "*.gxp"))
 	if [ ${#myarray[@]} -gt 0 ]; then
-		i=1 && while read line; do echo [$((i++))]. $line; done < <(ls -1 "$GRLOAD"/*.gxp | sed "s|$GRLOAD/||") >"${t:="$GTMP/_l"}" && echo -e "${BGREEN}\c" && gecca "$t" && rm "$t"
+		i=1 && while read line; do echo [$((i++))]. "$line"; done < <(ls -1 "$GRLOAD"/*.gxp | sed "s|$GRLOAD/||") >"${t:="$GTMP/_l"}" && geco "${BGREEN}\c" && gecca "$t" && rm "$t"
 	else geco "         ${_body_gxpm_info_not_found_classicui_}..."; fi
 	echo -e "${RC}\n\n"
 }
@@ -24,7 +24,11 @@ com_rinput_gpkgman() {
 	b) exit 0 ;;
 	i)
 		clear
-		if [ -f "$GXPM_LOG" ]; then cat "$GXPM_LOG"; else geco "\n- ${_nothing_was_found_}"; fi
+		if [ -f "$GXPM_LOG" ]; then
+			cat "$GXPM_LOG"
+		else
+			geco "\n- ${_nothing_was_found_}"
+		fi
 		pause
 		;;
 	u) replace_body_unins ;;
@@ -36,57 +40,89 @@ com_rinput_gpkgman() {
 	*) if [ -z "$c" ]; then
 		geco "\n${_noinput_classicui_} ..."
 		pause
-	else if [ -z "$UNINS" ]; then
+	elif [ -z "$UNINS" ]; then
 		TER="$(ls -1 "$GRLOAD"/*.gxp | sed -n "$c p" | sed "s|$GRLOAD/||")"
-		if [ -f "${GRLOAD}/${TER}" ]; then clear && do_install "${GRLOAD}/${TER}"; else
+		if [ -f "${GRLOAD}/${TER}" ]; then
+			clear
+			do_install "${GRLOAD}/${TER}"
+		else
 			geco "\n~ ${_wronginput_classicui_} ..."
 			pause
 		fi
 	else
-		TER="$(ls -1 $UNINSDIR | sed -n "$c p")"
-		if [ -f "${UNINSDIR}/${TER}" ]; then do_uninstall "${UNINSDIR}"/"${TER}"; else
+		TER="$(ls -1 "$UNINSDIR" | sed -n "$c p")"
+		if [ -f "${UNINSDIR}/${TER}" ]; then
+			do_uninstall "${UNINSDIR}"/"${TER}"
+		else
 			geco "\n~ ${_wronginput_classicui_} ..."
 			pause
 		fi
-	fi; fi ;;
+	fi ;;
 	esac
 }
 
-lf() { ls -1F "$1" | sed -e "s|/| $(printf "\r%*s" $(($(tput cols) / 30)) "$(echo -n "Folder" | cut -d . -f2)")|g" -e "s|*| $(printf "\r%*s" $(($(tput cols) / 30)) "$(echo -n "File  " | cut -d . -f2)")|g" -e "s|@| $(printf "\r%*s" $(($(tput cols) / 30)) "$(echo -n "Symlink" | cut -d . -f2)")|g"; }
+lf() { ls -1F "$1" | sed -e "s|/| $(
+	printf "\r%*s" $(($(tput cols) / 30)) "$(
+		echo -n "Folder" | cut -d . -f2
+	)"
+)|g" -e "s|*| $(
+	printf "\r%*s" $(($(tput cols) / 30)) "$(
+		echo -n "File  " | cut -d . -f2
+	)"
+)|g" -e "s|@| $(
+	printf "\r%*s" $(($(tput cols) / 30)) "$(
+		echo -n "Symlink" | cut -d . -f2
+	)"
+)|g"; }
 metro_pkgman_custom_sel() {
 	while true; do
 		[ -z "$PWD" ] && PWD="$OLDPWD"
 		i=1 W=()
 		while read -r line; do W+=($((i++)) "$line"); done < <(lf "$PWD")
 		CUR_DIR="$PWD"
-		FILE_NUM="$(dialog --colors --clear --backtitle "$(gecpc "${_press_esc_metroui_info_}" "%")" --title " ${_gxpm_full_name_installer_} " --ok-label "${_open_}" --extra-button --extra-label "${_back_}" --cancel-label " ${_uninstall_} " --help-button --help-label " ${_view_log_} " --menu "\n${_metroui_gxpm_header_meta_}: \Zb\Z1$CUR_DIR\Zn \n \n" 30 150 40 "${W[@]}" 3>&2 2>&1 1>&3)"
+		FILE_NUM="$(dialog --colors --clear \
+			--backtitle "$(gecpc "${_press_esc_metroui_info_}" "%")" \
+			--title " ${_gxpm_full_name_installer_} " \
+			--ok-label "${_open_}" --extra-button --extra-label "${_back_}" \
+			--cancel-label " ${_uninstall_} " --help-button --help-label " ${_view_log_} " \
+			--menu "\n${_metroui_gxpm_header_meta_}: \Zb\Z1$CUR_DIR\Zn \n \n" \
+			30 150 40 "${W[@]}" 3>&2 2>&1 1>&3)"
 		RETC=$?
-		if [ "$RETC" = "0" ]; then # Open button
+		case "$RETC" in
+		0) # Open button
 			TER="$(ls -1 "$PWD" | sed -n "$FILE_NUM p")"
 			if [ -d "$TER" ] && [ -n "$(ls -1 "$TER")" ]; then
 				cd "$(readlink -f "$TER")"
 			elif [ -f "$TER" ]; then
-				if [ -n "$(echo "$TER" | grep -E '.gxp')" ]; then
+				case "$TER" in
+				*.gxp*)
 					yesno "$(gecpc " ${_gxpm_full_name_installer_} " "\$")" "${_sure_to_install_}" "\n\n$(echo "${TER}" | sed "s|\b.gxp\b||")" 10 70
-					if [ "$?" = "0" ]; then clear && do_install "$TER"; else msgbox "${_beep_boop_}" "${_notice_}" "\n\n${_as_you_wish_} !"; fi
-				elif [ -n "$(echo "$TER" | grep -E '.zip')" ]; then
-					yesno "$(gecpc " ${_gxpm_full_name_zip_installer_} " "\$")" "${_sure_to_install_}" "\n\n${_zip_flash_info_}\n\Z1$(echo "${TER}" | sed "s|\b.zip\b||") \n " 15 95
-					if [ "$?" = "0" ]; then clear && do_install_zip "$(realpath "$TER")"; else msgbox "${_beep_boop_}" "${_notice_}" "\n\n${_as_you_wish_} !"; fi
-				else
-					msgbox "${_beep_boop_}" " ${_notice_} " "$TER ${_is_not_gxp_}" 12 70
-				fi
+					if yesno "$(gecpc " ${_gxpm_full_name_installer_} " "\$")" "${_sure_to_install_}" "\n\n$(echo "${TER}" | sed "s|\b.gxp\b||")" 10 70; then
+						clear
+						do_install "$TER"
+					else
+						msgbox "${_beep_boop_}" "${_notice_}" "\n\n${_as_you_wish_} !"
+					fi
+					;;
+				*.zip*)
+					if yesno "$(gecpc " ${_gxpm_full_name_zip_installer_} " "\$")" "${_sure_to_install_}" "\n\n${_zip_flash_info_}\n\Z1$(echo "${TER}" | sed "s|\b.zip\b||") \n " 15 95; then
+						clear
+						do_install_zip "$(realpath "$TER")"
+					else
+						msgbox "${_beep_boop_}" "${_notice_}" "\n\n${_as_you_wish_} !"
+					fi
+					;;
+				*) msgbox "${_beep_boop_}" " ${_notice_} " "$TER ${_is_not_gxp_}" 12 70 ;;
+				esac
 			else
 				msgbox "Opps ..." " ${_info_} " "${_folder_is_empty_}"
 			fi
-		elif [ "$RETC" = "3" ]; then # Back button
-			cd ../
-		elif [ "$RETC" = "1" ]; then # Uninstall button
-			metro_pkgman_unins
-		elif [ "$RETC" = "2" ]; then # View-Log button
-			view_gxpm_log
-		elif [ "$RETC" = "255" ]; then # Exit call
-			break
-		fi
+			;;
+		3) cd .. ;;              # Back button
+		1) metro_pkgman_unins ;; # Uninstall button
+		2) view_gxpm_log ;;      # View-Log button
+		255) break ;;            # Exit call
+		esac
 	done
 }
 metro_pkgman_grload_sel() {
@@ -102,25 +138,29 @@ metro_pkgman_unins() {
 	while true; do
 		ckdirex "$UNINSDIR"
 		if [ -n "$(ls -A "$UNINSDIR")" ]; then
-			TEST_STRING="$(ls -1 $UNINSDIR)"
 			calcTextDialogSize
 			i=1 W=()
 			while read -r line; do
 				W+=($((i++)) "$line")
 			done < <(ls -1 "${UNINSDIR}")
-			FILE_NUM="$(dialog --clear --backtitle "$(gecpc " ${_press_esc_metroui_info_} " "=")" --title " ${_gxpm_full_name_uninstaller_} " --ok-label Uninstall --nocancel --help-button --help-label View-Log --menu "\n " $(($RECMD_HEIGHT + 10)) 130 17 "${W[@]}" 3>&2 2>&1 1>&3)"
+			FILE_NUM="$(dialog --clear \
+				--backtitle "$(gecpc " ${_press_esc_metroui_info_} " "=")" \
+				--title " ${_gxpm_full_name_uninstaller_} " --ok-label Uninstall \
+				--nocancel --help-button --help-label View-Log --menu "\n " \
+				$((RECMD_HEIGHT + 10)) 130 17 "${W[@]}" 3>&2 2>&1 1>&3)"
 			RETC=$?
-			if [ "$RETC" = "0" ]; then # Uninstall button
-				TER="$(readlink -f "${UNINSDIR}/$(ls -1 $UNINSDIR | sed -n "$FILE_NUM p")" | sed "s|${UNINSDIR}/||")"
-				yesno "${_gxpm_full_name_uninstaller_}" "${_sure_to_uninstall_}" "\n\n$(echo "${TER}")"
-				if [ "$?" = "0" ]; then do_uninstall "${UNINSDIR}"/"${TER}"; else msgbox "${_beep_boop_}" "${_notice_}" "\n\n${_as_you_wish_} !"; fi
-
-			elif [ "$RETC" = "2" ]; then # View-Log button
-				view_gxpm_log
-			elif [ "$RETC" = "255" ]; then # Exit call
-				break
-
-			fi
+			case "$RETC" in
+			0) # Uninstall button
+				TER="$(readlink -f "${UNINSDIR}/$(ls -1 "$UNINSDIR" | sed -n "$FILE_NUM p")" | sed "s|${UNINSDIR}/||")"
+				if yesno "${_gxpm_full_name_uninstaller_}" "${_sure_to_uninstall_}" "\n\n$TER"; then
+					do_uninstall "${UNINSDIR}"/"${TER}"
+				else
+					msgbox "${_beep_boop_}" "${_notice_}" "\n\n${_as_you_wish_} !"
+				fi
+				;;
+			2) view_gxpm_log ;; # View-Log button
+			255) break ;;       # Exit call
+			esac
 		else
 			msgbox "${_beep_boop_}" "${_notice_}" "${_no_uninstallable_found_}" && break
 		fi
@@ -131,23 +171,23 @@ view_gxpm_log() {
 }
 do_install() {
 	chk_ghome
-	$CORE/gxpm/install "$1"
+	"$CORE"/gxpm/install "$1"
 }
 do_install_zip() {
 	chk_ghome
-	$CORE/gxpm/install-zip "$1"
+	"$CORE"/gxpm/install-zip "$1"
 }
 do_uninstall() {
 	chk_ghome
-	$CORE/gxpm/uninstall "$1"
+	"$CORE"/gxpm/uninstall "$1"
 }
 
 # Uninstall menu
 replace_body_unins() {
 	UNINS=0
 	com_body_gpkgman() {
-		ckdirex $UNINSDIR
-		if [ -n "$(find $UNINSDIR -maxdepth 0 -empty)" ]; then
+		ckdirex "$UNINSDIR"
+		if [ -n "$(find "$UNINSDIR" -maxdepth 0 -empty)" ]; then
 			geco "\n\n\n-           ${_no_uninstallable_found_}\n\n\n"
 		else
 			geco "\n\n\n"
@@ -158,12 +198,15 @@ replace_body_unins() {
 	}
 }
 
-if [ "$IT" = "classic" ]; then
-	struct_interface 0 logo_gpkgman com_body_gpkgman com_footer_gpkgman com_rinput_gpkgman
-elif [ "$IT" = "metro" ]; then
+case "$IT" in
+classic) struct_interface 0 logo_gpkgman com_body_gpkgman com_footer_gpkgman com_rinput_gpkgman ;;
+metro)
 	while true; do
 		[ -f "$GTMP/reboot" ] && msgbox "Reboot required" "${_attention_}" "${_reboot_manually_gxpm_info_}"
-		cmd=(dialog --clear --backtitle "$(gecpc "${_press_esc_metroui_info_}" "%")" --title " ${_gxpm_full_name_} " --ok-label Run --nocancel --menu "\n " 15 60 15)
+		cmd=(dialog --clear
+			--backtitle "$(gecpc "${_press_esc_metroui_info_}" "%")"
+			--title " ${_gxpm_full_name_} " --ok-label Run
+			--nocancel --menu "\n " 15 60 15)
 		choices=$("${cmd[@]}" 1 "${_gxpm_menu_item_1_}" 2 "${_gxpm_menu_item_2_}" 3 "${_gxpm_menu_item_3_}" 4 "${_gxpm_menu_item_4_}" 2>&1 >/dev/tty)
 		# Handle exit
 		RETC="$?"
@@ -180,4 +223,6 @@ elif [ "$IT" = "metro" ]; then
 			esac
 		done
 	done
-fi
+	;;
+infinity) ;;
+esac

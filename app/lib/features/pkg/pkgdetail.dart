@@ -2,14 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:gearlock/global_widgets.dart';
+import 'package:gearlock/core/home_widgets.dart';
 
 class PackageDetail extends StatefulWidget {
-  final String appName;
+  final String appID;
   // var context;
   const PackageDetail({
     super.key,
-    required this.appName,
+    required this.appID,
   });
 
   @override
@@ -17,20 +17,23 @@ class PackageDetail extends StatefulWidget {
 }
 
 class _PackageDetailState extends State<PackageDetail> {
-  String appTitle = "";
+  late String appID;
+  String appTitle="";
   String appIcon = "";
   String appDescription = "";
-  String appAuthor = "";
-  String appVersion = "";
-  String appInsDate = "";
+  String appAuthor = "Gearlock";
+  String appVersion = "0.0.0";
+  String appArch = "x86_64";
+  String appInsDate = "00/00/0000";
   String appFileList = "";
-  bool appPkgtype = true;
+  bool isPackage = true;
   // late BuildContext ctx;
 
   @override
   void initState() {
     super.initState();
-    appTitle = widget.appName;
+    appID = widget.appID;
+    appTitle=appID;
     // ctx = widget.context;
   }
 
@@ -186,7 +189,7 @@ class _PackageDetailState extends State<PackageDetail> {
           ),
           singleExpandaText("Description", appDescription),
           simpleTextBox(context, "Author", appAuthor),
-          simpleTextBox(context, "Type", appPkgtype ? "Package" : "Extension"),
+          simpleTextBox(context, "Type", isPackage ? "Package" : "Extension"),
           simpleTextBox(context, "Version", appVersion),
           simpleTextBox(context, "Installed Date", appInsDate),
           singleExpandaText("File list", appFileList),

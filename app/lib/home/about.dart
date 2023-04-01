@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:gearlock/global_widgets.dart';
+import 'package:gearlock/core/global_widgets.dart';
+import 'package:gearlock/core/home_widgets.dart';
 
 class AboutPage extends GearStatefulWidget {
-  AboutPage({
+  const AboutPage({
     super.key,
     required super.callbackAdd,
     required super.callGoBack,
-    required super.preventBack,
   });
 
   @override

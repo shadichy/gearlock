@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:gearlock/global_widgets.dart';
 
-class PackageDownload extends GearStatefulWidget {
+class PackageDownload extends StatefulWidget {
   final String appUrl;
-  PackageDownload({
+  const PackageDownload({
     super.key,
-    required super.callbackAdd,
-    required super.callGoBack,
     required this.appUrl,
-    required super.preventBack,
   });
 
   @override
@@ -16,12 +12,10 @@ class PackageDownload extends GearStatefulWidget {
 }
 
 class _PackageDownloadState extends State<PackageDownload> {
-  late final void Function() callGoBack;
 
   @override
   void initState() {
     super.initState();
-    callGoBack = widget.callGoBack;
   }
 
   @override
@@ -36,7 +30,7 @@ class _PackageDownloadState extends State<PackageDownload> {
           children: [
             IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () => callGoBack,
+              onPressed: () => Navigator.of(context).pop(),
               color: const Color(0xff212435),
               iconSize: 24,
               splashRadius: 24,
@@ -534,18 +528,9 @@ class _PackageDownloadState extends State<PackageDownload> {
       ),
     ];
 
-    ListView.builder(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 50),
-      itemCount: body.length,
-      itemBuilder: (context, index) {
-        return body[index];
-      },
-      physics: const BouncingScrollPhysics(),
-    );
-    return SizedBox(
-      height: MediaQuery.of(context).size.height,
-      width: MediaQuery.of(context).size.width,
-      child: Stack(
+    return Scaffold(
+      backgroundColor: const Color(0xffffffff),
+      body: Stack(
         // alignment: Alignment.topLeft,
         children: [
           ListView.builder(
@@ -567,11 +552,10 @@ class _PackageDownloadState extends State<PackageDownload> {
                   topLeft: Radius.circular(12),
                   topRight: Radius.circular(12),
                 ),
-                side: BorderSide(color: Color(0xffffffff), width: 1),
               ),
               // padding: EdgeInsets.all(0),
               textColor: const Color(0xffffffff),
-              height: 50,
+              height: 54,
               minWidth: MediaQuery.of(context).size.width,
               child: const Text(
                 "INSTALL ",
