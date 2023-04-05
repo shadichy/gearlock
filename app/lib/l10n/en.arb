@@ -1,0 +1,151 @@
+{
+	"@@locale": "en",
+
+	"@_MAIN": {},
+	"home": "Home",
+	"system": "System",
+	"package": "Package",
+	"about": "About",
+
+
+	"@_CORE": {},
+	
+	"@_glnotfound": {},
+	"nogearlock":"GEARLOCK NOT FOUND!",
+	"plsinstall":"Please install this app on device that has GearLock installed",
+
+
+	"@_HOME": {},
+	
+  "@_home": {},
+	"androidver": "Android version",
+	"suaccess": "Root access",
+	"sugranted": "Granted",
+	"sunotgranted": "Not Granted",
+	"sunotfound": "Not Rooted",
+	"gearlockver": "GearLock version",
+	"sysinfo": "System Info",
+	"quickactions": "Quick Actions",
+	"packages": "Packages",
+	"inspkg": "Install package",
+	"allpkg": "All packages",
+	"fsoperations": "Filesystem operations",
+	"fsbackup": "Backup filesystem",
+	"fsrestore": "Restore from Backups",
+	"fswipe": "Wipe filesystem",
+	"tweaks": "Tweaks",
+	"suhandler": "SU Handler",
+	"google": "Google",
+	"hwtweaks": "Hardware tweaks",
+	"systemmask": "SystemMask",
+	"misc": "Misc",
+	"fdevs": "For developers",
+	"devzone": "Developer Zone",
+	"log": "Show logs",
+
+	"@_about": {},
+	"briefdesc": "GearLock is a GUI & Recovery program developed with with lots of time, patience and love by SupremeGamers.",
+	"website": "Website",
+	"email": "Email",
+	"descriptions": "Descriptions",
+	"credits": "Credits",
+	"license": "License",
+	"settings": "Settings",
+	"srccode": "Source code",
+	"checkupdate": "Check for updates",
+	"foundupdate": "New update found!",
+
+	"@_pkglist": {},
+	"installedupper": "INSTALLED",
+	"packagesupper": "PACKAGES",
+	"addpkg": "Add package",
+
+	"@_sysinfo": {},
+	"systemupper": "SYSTEM",
+	"infoupper": "INFO",
+	"software": "Software",
+	"graphics": "Graphics",
+	"kernel": "Kernel",
+	"hardware": "Hardware",
+	"devicespec": "Device Specs",
+  "gearbootver": "GearBoot version",
+  "gearpropver": "GearProp version",
+  "appver": "App version",
+  "sdklevel":"SDK level",
+  "buildno":"Build number",
+  "suver":"SU version",
+  "gmsprovider":"Google Service provider",
+  "macaddress":"Device MAC address",
+  "nativebridge":"NativeBridge",
+  "gamingprotocol":"Gaming Protocol",
+  "resolution": "Resolution",
+  "glvendor": "GL vendor",
+  "glrenderer": "GL renderer",
+  "glver": "GL version",
+  "kernelver": "Kernel version",
+  "buildinfo": "Build info",
+  "arch": "Architecture",
+  "uptime": "Uptime",
+  "cpuarch":"CPU architecture",
+  "cpuvendor": "CPU vendor",
+  "cpucores": "CPU cores",
+  "cpufreqr": "CPU freqency range",
+  "currcpugov": "Current CPU governor",
+  "availcpugov": "Available CPU governors",
+  "gpuvendor": "GPU vendor",
+  "intermem": "Internal Storage",
+  "model": "Model",
+  "biosmode": "Boot Structure",
+
+	
+	"@_FEATURES": {},
+
+	"@_Devzone": {},
+
+	"@_devzone": {},
+	"@_log": {},
+
+	"@_Fs": {},
+
+	"@_fscore": {},
+	"@_fsbackup": {},
+	"@_fsrestore": {},
+	"@_fsresize": {},
+	"@_fswipe": {},
+
+	"@_Google": {},
+
+	"@_googlecore": {},
+	"@_debloat": {},
+	"@_googleless": {},
+	"@_install_g": {},
+
+	"@_Hardware": {},
+
+	"@_hardwarecore": {},
+	"@_cpu_governors": {},
+	"@_resolution": {},
+	"@_sound": {},
+	"@_trackpad": {},
+
+	"@_Misc": {},
+
+	"@_misccore": {},
+	"@_hot_restart": {},
+	"@_mount_part": {},
+	"@_su_handler": {},
+	
+	"@_Pkg": {},
+	
+	"@_getpkg": {},
+	"@_pkgdetail": {},
+	"@_searchpkg": {},
+
+
+	"@_DOCS": {},
+
+	"gearlock_header": "GearLock - Custom Recovery Replacement for Android-x86",
+	"fulldesc": "\nGearLock is a dynamically written bash program focused in performance with the intension of making modifications in android-x86 easier.\n\nIt is also intended to replace the need for traditional custom-recovery software for android-x86 which are found in mobile phones.\n\nGearLock was made in a different perspective unlike traditional custom-recovery software for mobile phones.\n\nGearLock and everything within it are standalone programs and does not need to rely on the android system.\n\nIt can be used both GUI and TTY in a user-friendly manner, including advanced CLI usage.\n",
+	"fullcredits": "\nHere I'm trying to list all of the remarkable work by others which has been used to enrich GearLock.\n\nWithout their open-minded years of hard work, GearLock wouldn't have been the same.\n\n- The great legendary GNU communtiy for their free and opensource softwares.\n> <https://www.gnu.org/software>\n\n- Igor Pavlov (p7zip)\n> <http://p7zip.sourceforge.net>\n\n- mcmilk (p7zip zstd plugin)\n> <https://github.com/mcmilk/7-Zip-zstd>\n\n- Jack Palevich (Terminal Emulator)\n> <https://github.com/jackpal/Android-Terminal-Emulator>\n\n- Roumen Petrov (Better Terminal Emulator, Termoneplus)\n> <https://gitlab.com/termapps/termoneplus>\n\nAlso thanks to\n\n- @hmtheboy154 (Contibutor)\n- @SGNight (Contibutor)\n- @electrikjesus (Contributor)\n- Mido Fayad (Contibutor & Donator)\n- Ahmad Moemen (Contibutor)\n- Diaz (Donator)\n- rk (Donator)\n- <https://github.com/termux/termux-packages>\n- <https://github.com/opsengine/cpulimit>\n- <https://github.com/landley/toybox>\n- <https://github.com/osospeed/ttyecho>\n- <http://e2fsprogs.sourceforge.net>\n- <https://github.com/arter97/resetprop>\n",
+	"fulllicense": "\nGearLock\nCopyright (C) 2021  SupremeGamers\n\nThis program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; version 2.\n\nThis program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA\n"
+}

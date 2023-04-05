@@ -4,6 +4,7 @@ import 'package:gearlock/core/home_widgets.dart';
 import 'package:animations/animations.dart';
 import 'package:gearlock/features/pkg/pkgdetail.dart';
 import 'package:gearlock/features/pkg/searchpkg.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PkgPreview extends StatefulWidget {
   final String appID;
@@ -54,9 +55,9 @@ class _PkgPreviewState extends State<PkgPreview> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color(0x00000000),
+                // color: const Color(0x00000000),
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0x4d9e9e9e), width: 1),
+                border: Border.all(color: Theme.of(context).colorScheme.surfaceVariant, width: 1),
               ),
               child: appIcon,
             ),
@@ -74,22 +75,22 @@ class _PkgPreviewState extends State<PkgPreview> {
                       textAlign: TextAlign.start,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontStyle: FontStyle.normal,
                         fontSize: 16,
-                        color: Color(0xff000000),
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
                       ),
                     ),
                     Text(
                       appSize,
                       textAlign: TextAlign.start,
                       overflow: TextOverflow.clip,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w300,
                         fontStyle: FontStyle.normal,
                         fontSize: 12,
-                        color: Color(0xff000000),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -139,22 +140,32 @@ class _PkgListState extends State<PkgList> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.max,
           children: [
-            Container(
-              alignment: Alignment.center,
-              child: const Icon(
+            IconButton(
+              onPressed: () => callbackAdd(
+                SearchPkg(callbackAdd: callbackAdd, callGoBack: callGoBack),
+              ),
+              icon: Icon(
                 Icons.search,
-                color: Color(0xff303f9f),
-                size: 24,
+                color: Theme.of(context).colorScheme.primary,
+                size: 28,
               ),
+              splashRadius: 24,
             ),
-            topText(["INSTALLED ", "PACKAGES"]),
-            Container(
-              alignment: Alignment.center,
-              child: const Icon(
+            topText([
+              "${AppLocalizations.of(context)!.installedupper} ",
+              AppLocalizations.of(context)!.packagesupper,
+            ], [
+              Theme.of(context).colorScheme.onPrimaryContainer,
+              Theme.of(context).colorScheme.primary
+            ]),
+            IconButton(
+              onPressed: () {},
+              icon: Icon(
                 Icons.more_vert,
-                color: Color(0xff303f9f),
-                size: 24,
+                color: Theme.of(context).colorScheme.primary,
+                size: 28,
               ),
+              splashRadius: 24,
             ),
           ],
         ),
@@ -163,21 +174,21 @@ class _PkgListState extends State<PkgList> {
         onTap: () => callbackAdd(
           SearchPkg(callbackAdd: callbackAdd, callGoBack: callGoBack),
         ),
-        leading: const Icon(
+        leading: Icon(
           Icons.add,
           // onPressed: () {},
-          color: Color(0xff3f51b5),
+          color: Theme.of(context).colorScheme.primary,
           size: 24,
         ),
-        title: const Text(
-          "Add package",
+        title: Text(
+          AppLocalizations.of(context)!.addpkg,
           textAlign: TextAlign.start,
           overflow: TextOverflow.clip,
           style: TextStyle(
             fontWeight: FontWeight.w600,
             fontStyle: FontStyle.normal,
             fontSize: 14,
-            color: Color(0xff3f51b5),
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
       ),

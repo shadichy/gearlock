@@ -24,7 +24,7 @@ class _UpdaterState extends State<Updater> {
       onPop: () async {
         bool confirm = false;
         if (!confirm) {
-          //
+          confirm = true;
         }
         return confirm;
       },

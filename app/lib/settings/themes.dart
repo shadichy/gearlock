@@ -24,7 +24,7 @@ class _ThemeSelectorState extends State<ThemeSelector> {
       children: body,
       onPop: () async {
         if (!applied) {
-          //
+          applied = true;
         }
         return applied;
       },

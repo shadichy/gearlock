@@ -66,8 +66,8 @@ class _SearchPkgState extends State<SearchPkg> {
             IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: callGoBack,
-              color: const Color(0xff303f9f),
-              iconSize: 24,
+              color: Theme.of(context).colorScheme.primary,
+              iconSize: 28,
               splashRadius: 24,
               // padding: const EdgeInsets.only(right: 8),
             ),
@@ -84,8 +84,8 @@ class _SearchPkgState extends State<SearchPkg> {
                   minimumSize: const Size.fromHeight(36),
                   shadowColor: Colors.transparent,
                   elevation: 0,
-                  foregroundColor: const Color(0xff929292),
-                  backgroundColor: const Color(0xffffffff),
+                  foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                  backgroundColor: Theme.of(context).colorScheme.surfaceTint.withOpacity(.05),
                   alignment: Alignment.centerLeft,
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(40)),
@@ -107,8 +107,8 @@ class _SearchPkgState extends State<SearchPkg> {
             IconButton(
               icon: const Icon(Icons.more_vert),
               onPressed: () {},
-              color: const Color(0xff303f9f),
-              iconSize: 24,
+              color: Theme.of(context).colorScheme.primary,
+              iconSize: 28,
               splashRadius: 24,
             ),
           ],

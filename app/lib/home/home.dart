@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gearlock/core/global_widgets.dart';
 import 'package:gearlock/core/home_widgets.dart';
 import 'package:gearlock/features/devzone/devzone.dart';
 import 'package:gearlock/features/devzone/log.dart';
-import 'package:gearlock/features/google/googleless.dart';
+import 'package:gearlock/features/google/core.dart';
 import 'package:gearlock/features/hardware/core.dart';
 import 'package:gearlock/features/misc/core.dart';
 import 'package:gearlock/features/misc/su_handler.dart';
@@ -11,6 +14,9 @@ import 'package:gearlock/features/pkg/searchpkg.dart';
 import 'package:gearlock/features/fs/core.dart';
 import 'package:gearlock/features/systemmask/core.dart';
 import 'package:gearlock/home/pkglist.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:gearlock/settings/settings.dart';
+import 'package:gearlock/settings/themes.dart';
 
 class GearAction {
   final String title;
@@ -21,6 +27,73 @@ class GearAction {
     required this.icon,
     required this.pressed,
   });
+}
+
+class BriefSysInfo extends StatefulWidget {
+  final String name;
+  final String value;
+  final Widget icon;
+  const BriefSysInfo({
+    super.key,
+    required this.name,
+    required this.value,
+    required this.icon,
+  });
+
+  @override
+  State<BriefSysInfo> createState() => _BriefSysInfoState();
+}
+
+class _BriefSysInfoState extends State<BriefSysInfo> {
+  late final String name;
+  late final String value;
+  late final Widget icon;
+  @override
+  void initState() {
+    super.initState();
+    name = widget.name;
+    value = widget.value;
+    icon = widget.icon;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          icon,
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              value,
+              textAlign: TextAlign.start,
+              overflow: TextOverflow.clip,
+              style: TextStyle(
+                fontWeight: FontWeight.w400,
+                fontStyle: FontStyle.normal,
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+            ),
+          ),
+          // Text(
+          //   '$value',
+          //   textAlign: TextAlign.start,
+          //   overflow: TextOverflow.clip,
+          //   style: const TextStyle(
+          //     fontWeight: FontWeight.w500,
+          //     fontStyle: FontStyle.normal,
+          //     fontSize: 14,
+          //     // color: Theme.of(context).colorScheme.onTertiaryContainer,
+          //   ),
+          // ),
+        ],
+      ),
+    );
+  }
 }
 
 class HomeScreen extends GearStatefulWidget {
@@ -49,17 +122,19 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     void Function() goto(StatefulWidget page) => () => Navigator.of(context)
         .push(MaterialPageRoute(builder: (context) => page));
-    Widget homeActions(List<GearAction> childItems) {
+    Widget homeActions(String header, List<GearAction> childItems) {
       List<Widget> children = [];
       for (var i = 0; i < childItems.length; i++) {
         children.add(ElevatedButton.icon(
           onPressed: childItems[i].pressed,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xffffffff),
+            backgroundColor: Colors.transparent,
+            // backgroundColor: Theme.of(context).colorScheme.surface,
+            // backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
             elevation: 0,
             padding: const EdgeInsets.all(8),
             minimumSize: Size(MediaQuery.of(context).size.width, 60),
-            foregroundColor: const Color(0xff555555),
+            foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
             shadowColor: Colors.transparent,
             alignment: Alignment.centerLeft,
             shape: RoundedRectangleBorder(
@@ -76,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: childItems[i].icon,
           label: Padding(
             // padding: const EdgeInsets.all(8),
-            padding: const EdgeInsets.all(0),
+            padding: const EdgeInsets.only(left: 8),
             child: Text(
               childItems[i].title,
               textAlign: TextAlign.start,
@@ -84,114 +159,107 @@ class _HomeScreenState extends State<HomeScreen> {
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontStyle: FontStyle.normal,
-                fontSize: 16,
-                color: Color(0xff000000),
+                fontSize: 14,
+                // color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
         ));
-        if (i == childItems.length - 1) break;
-        children.add(
-          const Divider(
-            color: Color(0xff929292),
-            height: 1,
-            thickness: 1,
-            indent: 8,
-            endIndent: 8,
-          ),
-        );
+        // if (i == childItems.length - 1) break;
+        // children.add(
+        //   Divider(
+        //     color: Theme.of(context).colorScheme.outlineVariant,
+        //     height: 1,
+        //     thickness: 1,
+        //     indent: 8,
+        //     endIndent: 8,
+        //   ),
+        // );
       }
       return Container(
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        padding: const EdgeInsets.all(0),
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        padding: const EdgeInsets.all(16),
         width: MediaQuery.of(context).size.width,
+        // alignment: Alignment.centerLeft,
         clipBehavior: Clip.hardEdge,
+        // color: Theme.of(context).colorScheme.onSurface,
         decoration: BoxDecoration(
-          color: const Color(0x00000000),
+          // color: const Color(0x00000000),
+          color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(8.0),
-          border: Border.all(color: const Color(0x4d9e9e9e), width: 1),
+          // border: Border.all(
+          // color: Theme.of(context).colorScheme.outlineVariant,
+          // width: 1,
+          // ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
-          children: children,
+          children: [
+            Text(
+              header,
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontWeight: FontWeight.w300,
+                fontSize: 18,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+            ),
+            const Divider(
+              color: Colors.transparent,
+              height: 8,
+            ),
+            ...children
+          ],
         ),
       );
     }
 
-    List<List> sysInfoRaw = [
-      [
-        "Android version",
-        "12",
-        const Icon(
+    List<BriefSysInfo> sysInfoRaw = [
+      BriefSysInfo(
+        name: AppLocalizations.of(context)!.androidver,
+        value: 'Android ${Process.runSync("getprop", [
+              "ro.build.version.release"
+            ]).stdout.toString().trim()}',
+        icon: Icon(
           Icons.android,
-          color: Color(0xff212435),
-          size: 24,
-        )
-      ],
-      [
-        "Root access",
-        "Granted",
-        const Icon(
+          size: 32,
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+        ),
+      ),
+      BriefSysInfo(
+        name: AppLocalizations.of(context)!.suaccess,
+        value: Process.runSync("sh", ["-c", "command -v su"]).exitCode == 0
+            ? Process.runSync("sh", ["-c", "su -c echo"]).exitCode == 0
+                ? AppLocalizations.of(context)!.sugranted
+                : AppLocalizations.of(context)!.sunotgranted
+            : AppLocalizations.of(context)!.sunotfound,
+        icon: Icon(
           Icons.tag,
-          color: Color(0xff212435),
-          size: 24,
-        )
-      ],
-      [
-        "GearLock version",
-        "7.4.3",
-        const ImageIcon(
-          AssetImage("images/gearlock.png"),
-          size: 24,
-          color: Color(0xff212435),
-        )
-      ]
+          size: 32,
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+        ),
+      ),
+      BriefSysInfo(
+        name: AppLocalizations.of(context)!.gearlockver,
+        value: "GearLock 7.4.3",
+        icon: ImageIcon(
+          const AssetImage("images/gearlock.png"),
+          size: 32,
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+        ),
+      ),
     ];
 
     List<Widget> sysInfo = [];
     for (var i = 0; i < sysInfoRaw.length; i++) {
-      sysInfo.add(
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            sysInfoRaw[i][2],
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
-              child: Text(
-                sysInfoRaw[i][0] + ": ",
-                textAlign: TextAlign.start,
-                overflow: TextOverflow.clip,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w400,
-                  fontStyle: FontStyle.normal,
-                  fontSize: 14,
-                  color: Color(0xff555555),
-                ),
-              ),
-            ),
-            Text(
-              sysInfoRaw[i][1],
-              textAlign: TextAlign.start,
-              overflow: TextOverflow.clip,
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontStyle: FontStyle.normal,
-                fontSize: 14,
-                color: Color(0xff000000),
-              ),
-            ),
-          ],
-        ),
-      );
+      sysInfo.add(sysInfoRaw[i]);
       if (i == sysInfoRaw.length - 1) break;
       sysInfo.add(
         const Divider(
-          color: Color(0xffffffff),
+          color: Color(0x00ffffff),
           height: 4,
           thickness: 0,
           indent: 0,
@@ -199,6 +267,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     }
+
+    String colorCode(Color color) =>
+        color.value.toRadixString(16).substring(2, 8);
 
     List<Widget> body = [
       Padding(
@@ -208,67 +279,81 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.max,
           children: [
-            Container(
-              alignment: Alignment.center,
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: const Color(0x00000000),
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0x4d9e9e9e), width: 1),
-              ),
-              child: const Icon(
+            IconButton(
+              onPressed: () => callbackAdd(AppSettings(
+                callbackAdd: callbackAdd,
+                callGoBack: callGoBack,
+              )),
+              icon: Icon(
                 Icons.settings,
-                color: Color(0xff303f9f),
+                color: Theme.of(context).colorScheme.primary,
                 size: 28,
               ),
+              splashRadius: 24,
             ),
-            topText(["GEAR", "LOCK"]),
-            Container(
-              alignment: Alignment.center,
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: const Color(0x00000000),
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0x4d9e9e9e), width: 1),
-              ),
-              child: const Image(
-                image: AssetImage("images/color_pal_indigo.png"),
-                height: 28,
+            topText([
+              "GEAR",
+              "LOCK"
+            ], [
+              Theme.of(context).colorScheme.onPrimaryContainer,
+              Theme.of(context).colorScheme.primary
+            ]),
+            IconButton(
+              onPressed: goto(const ThemeSelector()),
+              icon: SvgPicture.string(
+                '<svg viewBox="0 0 24 24"><path d="M0 12A12 12 0 0112 0a12 12 0 0112 12H12z" fill="#${colorCode(Theme.of(context).colorScheme.primaryContainer)}"/><path d="M12 24a12 12 0 01-8.485-3.515A12 12 0 010 12h12z" fill="#${colorCode(Theme.of(context).colorScheme.tertiaryContainer)}"/><path d="M24 12a12 12 0 01-12 12V12z" fill="#${colorCode(Theme.of(context).colorScheme.primary)}"/></svg>',
                 width: 28,
-                fit: BoxFit.contain,
+                height: 28,
               ),
+              splashRadius: 24,
             ),
           ],
         ),
       ),
-      headingText("Sytem Info", 0xff3f51b5),
+      // headingText(AppLocalizations.of(context)!.sysinfo, 0xff3f51b5),
+      // Padding(
+      //   padding: const EdgeInsets.only(left: 16),
+      //   child: Text(
+      //     "GearLock",
+      //     style: TextStyle(
+      //       fontSize: 45,
+      //       // fontFamily: "comfortaa",
+      //       // fontVariations:
+      //       fontWeight: FontWeight.w500,
+      //     ),
+      //   ),
+      // ),
       Container(
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        padding: const EdgeInsets.all(8),
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
-          color: const Color(0xffffffff),
+          color: Theme.of(context).colorScheme.primaryContainer,
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(8.0),
-          border: Border.all(color: const Color(0x4d9e9e9e), width: 1),
+          // border: Border.all(
+          //   color: Theme.of(context).colorScheme.outlineVariant,
+          //   width: 1,
+          // ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.max,
           children: sysInfo,
         ),
       ),
-      headingText("Quick Actions", 0xff3f51b5),
-      separaText("Packages"),
-      homeActions([
+      headingText(
+        AppLocalizations.of(context)!.quickactions,
+        Theme.of(context).colorScheme.primary,
+      ),
+      // separaText(AppLocalizations.of(context)!.packages),
+      homeActions(AppLocalizations.of(context)!.packages, [
         GearAction(
-            title: "Install package",
+            title: AppLocalizations.of(context)!.inspkg,
             icon: const Icon(
               Icons.add,
-              color: Color(0xff212435),
+              // color: Color(0xff212435),
               size: 24,
             ),
             pressed: () {
@@ -278,10 +363,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ));
             }),
         GearAction(
-          title: "All packages (48)",
+          title: "${AppLocalizations.of(context)!.allpkg} (48)",
           icon: const Icon(
             Icons.widgets_outlined,
-            color: Color(0xff212435),
+            // color: Color(0xff212435),
             size: 24,
           ),
           pressed: () {
@@ -292,100 +377,100 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         )
       ]),
-      separaText("Filesystem operations"),
-      homeActions([
+      // separaText(AppLocalizations.of(context)!.fsoperations),
+      homeActions(AppLocalizations.of(context)!.fsoperations, [
         GearAction(
-          title: "Backup filesystem",
+          title: AppLocalizations.of(context)!.fsbackup,
           icon: const Icon(
             Icons.sync,
-            color: Color(0xff212435),
+            // // color: Color(0xff212435),
             size: 24,
           ),
           pressed: goto(const FsCore(mode: FsPageMode.backup)),
         ),
         GearAction(
-          title: "Restore from Backups",
+          title: AppLocalizations.of(context)!.fsrestore,
           icon: const Icon(
             Icons.history,
-            color: Color(0xff212435),
+            // color: Color(0xff212435),
             size: 24,
           ),
           pressed: goto(const FsCore(mode: FsPageMode.restore)),
         ),
         GearAction(
-          title: "Wipe filesystem",
+          title: AppLocalizations.of(context)!.fswipe,
           icon: const Icon(
             Icons.restart_alt,
-            color: Color(0xff212435),
+            // color: Color(0xff212435),
             size: 24,
           ),
           pressed: goto(const FsCore(mode: FsPageMode.wipe)),
         ),
       ]),
-      separaText("Tweaks"),
-      homeActions([
+      // separaText(AppLocalizations.of(context)!.tweaks),
+      homeActions(AppLocalizations.of(context)!.tweaks, [
         GearAction(
-          title: "SU handler",
+          title: AppLocalizations.of(context)!.suhandler,
           icon: const Icon(
             Icons.tag,
-            color: Color(0xff212435),
+            // color: Color(0xff212435),
             size: 24,
           ),
           pressed: goto(const SuHandler()),
         ),
         GearAction(
-          title: "Google",
+          title: AppLocalizations.of(context)!.google,
           icon: const ImageIcon(
             AssetImage("images/Google__G__Logo.png"),
             size: 24,
-            color: Color(0xff212435),
+            // color: Color(0xff212435),
           ),
-          pressed: goto(const GoogleLess()),
+          pressed: goto(const GoogleStats()),
         ),
         GearAction(
-          title: "Hardware tweaks",
+          title: AppLocalizations.of(context)!.hwtweaks,
           icon: const Icon(
             Icons.memory,
-            color: Color(0xff212435),
+            // color: Color(0xff212435),
             size: 24,
           ),
           pressed: goto(const HwTweaksDashboard()),
         ),
         GearAction(
-          title: "SystemMask",
+          title: AppLocalizations.of(context)!.systemmask,
           icon: const Icon(
             Icons.dashboard_outlined,
-            color: Color(0xff212435),
+            // color: Color(0xff212435),
             size: 24,
           ),
           pressed: goto(const SmaskDashboard()),
         ),
         GearAction(
-          title: "Misc",
+          title: AppLocalizations.of(context)!.misc,
           icon: const Icon(
             Icons.miscellaneous_services,
-            color: Color(0xff212435),
+            // color: Color(0xff212435),
             size: 24,
           ),
           pressed: goto(const MiscDashboard()),
         ),
       ]),
-      separaText("For developers"),
-      homeActions([
+      // separaText(AppLocalizations.of(context)!.fdevs),
+      homeActions(AppLocalizations.of(context)!.fdevs, [
         GearAction(
-          title: "Developers Zone",
+          title: AppLocalizations.of(context)!.devzone,
           icon: const Icon(
             Icons.code,
-            color: Color(0xff212435),
+            // color: Color(0xff212435),
             size: 24,
           ),
           pressed: goto(const DevZone()),
         ),
         GearAction(
-          title: "Show logs",
+          title: AppLocalizations.of(context)!.log,
           icon: const Icon(
             Icons.bug_report_outlined,
-            color: Color(0xff212435),
+            // color: Color(0xff212435),
             size: 24,
           ),
           pressed: goto(const ShowLog()),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class NoGearLock extends StatefulWidget {
   const NoGearLock({
@@ -34,12 +35,12 @@ class _NoGearLockState extends State<NoGearLock> {
               height: 100,
             ),
           ),
-          const ListTile(
+          ListTile(
             title: Text(
-              "GEARLOCK NOT FOUND!",
+              AppLocalizations.of(context)!.nogearlock,
               textAlign: TextAlign.center,
               overflow: TextOverflow.clip,
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontStyle: FontStyle.normal,
                 fontSize: 16,
@@ -47,10 +48,10 @@ class _NoGearLockState extends State<NoGearLock> {
               ),
             ),
             subtitle: Text(
-              "Please install this app on device that has GearLock installed",
+              AppLocalizations.of(context)!.plsinstall,
               textAlign: TextAlign.center,
               overflow: TextOverflow.clip,
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.w300,
                 fontStyle: FontStyle.normal,
                 fontSize: 12,

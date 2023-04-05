@@ -204,22 +204,26 @@ calcTextDialogSize() {
 		RECMD_WIDTH=$MIN_WIDTH
 	fi
 }
+dialogbox() {
+	[ "$5" ] && [ "$6" ] &&
+		RECMD_HEIGHT="$5" &&
+		RECMD_WIDTH="$6" ||
+		calcTextDialogSize "$7"
+	dialog --clear --colors --backtitle "$1" --title "$2" "$3" "$4" "$RECMD_HEIGHT" "$RECMD_WIDTH"
+}
 
 msgbox() {
-	test -n "$4" && test -n "$5" && RECMD_HEIGHT="$4" && RECMD_WIDTH="$5" || calcTextDialogSize "$1"
-	dialog --clear --colors --backtitle "$1" --title "$2" --msgbox "$3" $RECMD_HEIGHT $RECMD_WIDTH
+	dialogbox "$1" "$2" "--msgbox" "$3" "$4" "$5" "$1"
 	return
 }
 
 displayFile() {
-	test -n "$4" && test -n "$5" && RECMD_HEIGHT="$4" && RECMD_WIDTH="$5" || calcTextDialogSize "$(<"$3")"
-	dialog --clear --colors --backtitle "$1" --title "$2" --textbox "$3" $RECMD_HEIGHT $RECMD_WIDTH
+	dialogbox "$1" "$2" "--textbox" "$3" "$4" "$5" "$(<"$3")"
 	return
 }
 
 yesno() {
-	test -n "$4" && test -n "$5" && RECMD_HEIGHT="$4" && RECMD_WIDTH="$5" || calcTextDialogSize "$3"
-	dialog --clear --colors --backtitle "$1" --title "$2" --yesno "$3" $RECMD_HEIGHT $RECMD_WIDTH
+	dialogbox "$1" "$2" "--yesno" "$3" "$4" "$5" "$3"
 	return
 }
 
@@ -234,13 +238,13 @@ gxpmJob() {
 	local SP_DELAY="${4:-.2}" \
 		SP_STRING="${3:-"-----$(test ${#RANDOM} -lt 5 && echo + || echo '=')"}" \
 		SP_COLOR=0 \
-		msg="${1:-"Doing something special"}"
+		msg=${1:-"Doing something special"}
 	JOBS+="$2 "
 	tput civis && printf "\033[1;34m"
-	while test -d /proc/${5:-"$!"}; do
+	while [ -d /proc/"${5:-"$!"}" ]; do
 		echo -n "${msg}"
 		printf "\e[38;5;$((RANDOM % 257))m %${SP_WIDTH}s\r" "$SP_STRING"
-		sleep $SP_DELAY
+		sleep "$SP_DELAY"
 		SP_STRING=${SP_STRING#"${SP_STRING%?}"}${SP_STRING%?}
 	done
 	printf '\033[s\033[u%*s\033[u\033[0m' $((${#msg} + 6)) " "
@@ -251,7 +255,7 @@ gxpmJob() {
 
 mk_sync() {
 	for mp in "$SYSTEM_DIR" "$DATA_DIR"; do
-		mount -o rw,remount,$(test $1 == 'sync' && echo 'atime,diratime,relatime' || echo 'noatime') "$mp" >/dev/null 2>&1
+		mount -o rw,remount,"$([ "$1" = sync ] && echo 'atime,diratime,relatime' || echo 'noatime')" "$mp" >/dev/null 2>&1
 	done
 	return 0
 }
@@ -272,36 +276,33 @@ check_reboot_req() {
 	callName="${0##*/}"
 	job() {
 		geco "\$\$ ${_phrase_gxpm_com_public_jobs_}: ${YELLOW}$(echo "${JOBS}" | xargs | sed "s| |, |g")${RC}" # Print total completed gxpm public jobs
-		if test "$1" == "-r"; then
-			geco "\n\$\$ ${_phrase_X_is_requesting_reboot_/@DUMMY@/$TYPE} :\c" && sleep 1
-			while true; do
-				read -rn1 -p "$(geco " ${_phrase_allow_to_reboot_} [${BGREEN}Y${RC}/n]") " "c"
-				case "$c" in
-				[Yy]*)
-					geco "\n\n\n++ ${GREEN}${NAME}-${VERSION}${RC} ${callName^}ation Successful | \c"
-					greboot
-					break
-					;;
-				[Nn]*)
-					touch "$GTMP/reboot"
-					geco "\n" && pause "${GREEN}${NAME}-${VERSION}${RC} ${callName^}ation Successful | "
-					break
-					;;
-				*)
-					geco "\c "
-					;;
-				esac
-			done
-		else
+		if [ "$1" != '-r' ]; then
 			geco "\n" && pause "${GREEN}${NAME}-${VERSION}${RC} ${callName^}ation Successful | "
+			return
 		fi
+		geco "\n\$\$ ${_phrase_X_is_requesting_reboot_/@DUMMY@/$TYPE} :\c" && sleep 1
+		while true; do
+			read -rn1 -p "$(geco " ${_phrase_allow_to_reboot_} [${BGREEN}Y${RC}/n]") " "c"
+			case "$c" in
+			[Yy]*)
+				geco "\n\n\n++ ${GREEN}${NAME}-${VERSION}${RC} ${callName^}ation Successful | \c"
+				greboot
+				break
+				;;
+			[Nn]*)
+				touch "$GTMP/reboot"
+				geco "\n" && pause "${GREEN}${NAME}-${VERSION}${RC} ${callName^}ation Successful | "
+				break
+				;;
+			*) geco "\c " ;;
+			esac
+		done
 	}
 
-	if [ "$REQREBOOT" == "yes" ] || [ "${REQREBOOT%%,*}" == "yes" ] && [ "${REQREBOOT##*, }" == "yes" ]; then
-		job -r
-	elif [ "${REQREBOOT%%,*}" == "yes" ] && [ "${REQREBOOT##*, }" != "yes" ] && test -z "$RECOVERY"; then
-		job -r
-	elif [ "${REQREBOOT%%,*}" != "yes" ] && [ "${REQREBOOT##*, }" == "yes" ] && test -n "$RECOVERY"; then
+	if [ "$REQREBOOT" == "yes" ] ||
+		{ [ "${REQREBOOT%%,*}" == "yes" ] && [ "${REQREBOOT##*, }" == "yes" ]; } ||
+		{ [ "${REQREBOOT%%,*}" == "yes" ] && [ "${REQREBOOT##*, }" != "yes" ] && [ ! "$RECOVERY" ]; } ||
+		{ [ "${REQREBOOT%%,*}" != "yes" ] && [ "${REQREBOOT##*, }" == "yes" ] && [ "$RECOVERY" ]; }; then
 		job -r
 	else
 		job

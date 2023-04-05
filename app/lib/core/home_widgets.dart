@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gearlock/core/expansion_panel.dart';
 
-Widget topText(List<String> txt) {
+Widget topText(List<String> txt, List<Color> colorCode) {
   List<Widget> out = [];
-  List<int> colorCode = [0xff000000, 0xff303f9f];
   for (var i = 0; i < 2; i++) {
     out.add(Text(
       txt[i],
@@ -12,7 +12,7 @@ Widget topText(List<String> txt) {
         fontWeight: FontWeight.w800,
         fontStyle: FontStyle.normal,
         fontSize: 20,
-        color: Color(colorCode[i]),
+        color: colorCode[i],
       ),
     ));
   }
@@ -24,9 +24,9 @@ Widget topText(List<String> txt) {
   );
 }
 
-Widget headingText(String text, int color) {
+Widget headingText(String text, Color color) {
   return Padding(
-    padding: const EdgeInsets.fromLTRB(24, 8, 0, 0),
+    padding: const EdgeInsets.fromLTRB(30, 8, 0, 8),
     child: Text(
       text,
       textAlign: TextAlign.start,
@@ -34,8 +34,8 @@ Widget headingText(String text, int color) {
       style: TextStyle(
         fontWeight: FontWeight.w700,
         fontStyle: FontStyle.normal,
-        fontSize: 18,
-        color: Color(color),
+        fontSize: 20,
+        color: color,
       ),
     ),
   );
@@ -58,8 +58,8 @@ Widget separaText(String text) {
   );
 }
 
-Widget expandaBox(double padding, List<ExpansionPanelRadio> children) {
-  return ExpansionPanelList.radio(
+Widget expandaBox(double padding, List<NoGapExpansionPanelRadio> children) {
+  return NoGapExpansionPanelList.radio(
     elevation: 0,
     expandedHeaderPadding: EdgeInsets.all(padding),
     dividerColor: const Color(0xffffffff),
@@ -104,7 +104,7 @@ Widget baseTextBox(context, Row child) {
   );
 }
 
-Widget simpleTextBox(context, String title, String content) {
+Widget simpleTextBox(BuildContext context, String title, String content) {
   return baseTextBox(
     context,
     textRow(
@@ -113,11 +113,11 @@ Widget simpleTextBox(context, String title, String content) {
         content,
         textAlign: TextAlign.start,
         overflow: TextOverflow.clip,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.w500,
           fontStyle: FontStyle.normal,
           fontSize: 14,
-          color: Color(0xff000000),
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
         ),
       ),
     ),

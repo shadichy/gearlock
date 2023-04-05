@@ -73,7 +73,7 @@ class _PackageDownloadState extends State<PackageDownload> {
                   mainAxisSize: MainAxisSize.max,
                   children: const [
                     Text(
-                      "GearLock - Custom Recovery Replacement for Android-x86 ",
+                      "GearLock - Custom Recovery Replacement for Android-x86",
                       textAlign: TextAlign.start,
                       overflow: TextOverflow.clip,
                       style: TextStyle(
@@ -529,7 +529,7 @@ class _PackageDownloadState extends State<PackageDownload> {
     ];
 
     return Scaffold(
-      backgroundColor: const Color(0xffffffff),
+      // backgroundColor: const Color(0xffffffff),
       body: Stack(
         // alignment: Alignment.topLeft,
         children: [

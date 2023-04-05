@@ -17,7 +17,7 @@ class _FsWipeState extends State<FsWipe> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> body = [];
+    List<Widget> body = [Text("wipe")];
     return Container(
       child: ListView.builder(
         itemCount: body.length,

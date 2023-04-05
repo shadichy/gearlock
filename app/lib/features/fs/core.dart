@@ -25,7 +25,8 @@ class FsCore extends StatefulWidget {
 }
 
 class _FsCoreState extends State<FsCore> {
-  late int currentIndex;
+  int _selectedTab = 0;
+  List<int> lastVisited = [];
   @override
   void initState() {
     super.initState();
@@ -42,10 +43,23 @@ class _FsCoreState extends State<FsCore> {
       }
     }
 
-    currentIndex = getPage();
+    _selectedTab = getPage();
+    lastVisited.add(_selectedTab);
   }
 
-  final List<Widget> defaultRoutes = const [
+  void _onItemTapped(int t) {
+    setState(() {
+      _selectedTab = t;
+      if (t == 0) {
+        lastVisited.clear();
+      }
+      lastVisited.add(t);
+      print(lastVisited);
+      print(_selectedTab);
+    });
+  }
+
+  final List<StatefulWidget> defaultRoutes = const [
     FsBackup(),
     FsRestore(),
     FsResize(),
@@ -54,26 +68,62 @@ class _FsCoreState extends State<FsCore> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleRoute(
-      navBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.data_array),
-          ),
-        ],
-        currentIndex: currentIndex,
-        onTap: (value) => setState(() => currentIndex = value),
-      ),
-      children: [
-        PageTransitionSwitcher(
+    List<Widget> children = [
+      Container(),
+      Container(),
+      Container(),
+      SizedBox(
+        height: 40,
+        child: PageTransitionSwitcher(
           transitionBuilder: (child, anim1, anim2) => FadeThroughTransition(
             animation: anim1,
             secondaryAnimation: anim2,
             child: child,
           ),
-          child: defaultRoutes[currentIndex],
+          child: defaultRoutes[_selectedTab],
         ),
-      ],
+      ),
+    ];
+    return Scaffold(
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedTab,
+        onDestinationSelected: _onItemTapped,
+        destinations: const <NavigationDestination>[
+          NavigationDestination(
+            icon: Icon(Icons.data_array),
+            label: "Backup",
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.data_array),
+            label: "Restore",
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.data_array),
+            label: "Resize",
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.data_array),
+            label: "Wipe",
+          ),
+        ],
+      ),
+      body: WillPopScope(
+        onWillPop: () async {
+          setState(() {
+            lastVisited.removeLast();
+            if (lastVisited.isNotEmpty) _selectedTab = lastVisited.last;
+          });
+          if (lastVisited.isEmpty) return true;
+          return false;
+        },
+        child: ListView.builder(
+          itemCount: children.length,
+          itemBuilder: (context, index) {
+            return children[index];
+          },
+          physics: const BouncingScrollPhysics(),
+        ),
+      ),
     );
   }
 }

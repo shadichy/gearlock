@@ -1,3 +1,4 @@
+#!/bin/bash
 mouse() {
     geco "${_current_status_} : TrackPad $(if [ -n "$(grep -i touch /proc/bus/input/devices)" ]; then geco "${_phrase_is_active_}"; else geco "${_phrase_is_unactive_}"; fi)"
 

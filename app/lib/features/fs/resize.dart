@@ -17,7 +17,7 @@ class _FsResizeState extends State<FsResize> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> body = [];
+    List<Widget> body = [Text("resize")];
     return Container(
       child: ListView.builder(
         itemCount: body.length,

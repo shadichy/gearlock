@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:gearlock/core/theme.dart';
 import 'package:gearlock/home/about.dart';
 import 'package:gearlock/core/global_widgets.dart';
 import 'package:gearlock/home/home.dart';
@@ -7,17 +8,71 @@ import 'package:gearlock/core/glnotfound.dart';
 import 'package:gearlock/home/pkglist.dart';
 import 'package:gearlock/home/sysinfo.dart';
 import 'package:animations/animations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:dynamic_color/dynamic_color.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+Color brandColor = Colors.blue;
 
 void main() {
   String xarg = "/system/bin/sh";
   // String xarg = "/gearlock/init-chroot";
-  bool hasGearLock = Process.runSync('sh', ['-c', '[ -x "$xarg" ]']).exitCode == 0;
+  bool hasGearLock =
+      Process.runSync('sh', ['-c', '[ -x "$xarg" ]']).exitCode == 0;
+  WidgetsFlutterBinding.ensureInitialized();
+  const coreTheme = CoreTheme(
+    primaryColor: Color(0xff19686A),
+    tertiaryColor: Color(0xff386A20),
+    neutralColor: Color(0xff5D5F5A),
+  );
   runApp(
     MediaQuery(
       data: const MediaQueryData(),
-      child: MaterialApp(
-        home: hasGearLock ? const MainClass() : const NoGearLock(),
-      ),
+      child: DynamicColorBuilder(
+          builder: (ColorScheme? lightDynamic, ColorScheme? dark) {
+        ColorScheme lightColorScheme;
+        ColorScheme darkColorScheme;
+
+        if (lightDynamic != null && dark != null) {
+          lightColorScheme = lightDynamic.harmonized().copyWith();
+          lightColorScheme = lightColorScheme.copyWith(secondary: brandColor);
+          darkColorScheme = dark.harmonized();
+        } else {
+          lightColorScheme = ColorScheme.fromSeed(seedColor: brandColor);
+          darkColorScheme = ColorScheme.fromSeed(
+            seedColor: brandColor,
+            brightness: Brightness.dark,
+          );
+        }
+        return MaterialApp(
+          title: "GearLock",
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en'), // Default
+            Locale('ar'),
+            Locale('vi'),
+            Locale('zh'),
+          ],
+          theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: lightColorScheme.copyWith(),
+            textTheme: GoogleFonts.comfortaaTextTheme(),
+          ),
+          darkTheme: ThemeData(
+            useMaterial3: true,
+            colorScheme: darkColorScheme,
+            textTheme: GoogleFonts.comfortaaTextTheme(),
+          ),
+          themeMode: ThemeMode.light,
+          home: hasGearLock ? const MainClass() : const NoGearLock(),
+        );
+      }),
     ),
   );
 }
@@ -63,7 +118,7 @@ class _MainClassState extends State<MainClass> {
   void _onItemTapped(int t) {
     setState(() {
       _selectedTab = t;
-      if (t==0) {
+      if (t == 0) {
         lastVisited.clear();
       }
     });
@@ -93,7 +148,7 @@ class _MainClassState extends State<MainClass> {
     GearPage homePage = GearPage(tab: 0, page: defaultRoutes[0]);
     lastVisited.isEmpty ? lastVisited.add(homePage) : lastVisited[0] = homePage;
     return Scaffold(
-      backgroundColor: const Color(0xffffffff),
+      // backgroundColor: Theme.of(context).colorScheme.primary,
       body: WillPopScope(
         onWillPop: () async {
           callGoBack();
@@ -109,34 +164,27 @@ class _MainClassState extends State<MainClass> {
           child: lastVisited[lastVisited.length - 1].page,
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedTab,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedTab,
+        onDestinationSelected: _onItemTapped,
+        destinations: <NavigationDestination>[
+          NavigationDestination(
+            icon: const Icon(Icons.home),
+            label: AppLocalizations.of(context)!.home,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.android),
-            label: 'System',
+          NavigationDestination(
+            icon: const Icon(Icons.android),
+            label: AppLocalizations.of(context)!.system,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.widgets_outlined),
-            label: 'Package',
+          NavigationDestination(
+            icon: const Icon(Icons.widgets_outlined),
+            label: AppLocalizations.of(context)!.package,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.info_outlined),
-            label: 'About',
+          NavigationDestination(
+            icon: const Icon(Icons.info_outlined),
+            label: AppLocalizations.of(context)!.about,
           ),
         ],
-        selectedFontSize: 12.0,
-        unselectedFontSize: 10.0,
-        selectedItemColor: const Color(0xff536dfe),
-        unselectedItemColor: const Color(0xff929292),
-        showUnselectedLabels: true,
-        showSelectedLabels: true,
-        elevation: 0,
-        onTap: _onItemTapped,
       ),
     );
   }
