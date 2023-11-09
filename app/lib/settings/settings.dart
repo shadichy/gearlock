@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:gearlock/core/global_widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class AppSettings extends GearStatefulWidget {
-  const AppSettings({
+class AppPrefs extends GearStatefulWidget {
+  const AppPrefs({
     super.key,
     required super.callbackAdd,
     required super.callGoBack,
   });
 
   @override
-  State<AppSettings> createState() => _AppSettingsState();
+  State<AppPrefs> createState() => _AppSettingsState();
 }
 
-class _AppSettingsState extends State<AppSettings> {
+class _AppSettingsState extends State<AppPrefs> {
   @override
   void initState() {
     super.initState();

@@ -31,11 +31,12 @@ class _AboutPageState extends State<AboutPage> {
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme colors = Theme.of(context).colorScheme;
     Widget multiExpandaText(List<List<String>> content) {
       List<NoGapExpansionPanelRadio> txtbox = [];
       for (var ctn in content) {
         txtbox.add(NoGapExpansionPanelRadio(
-          backgroundColor: const Color(0xffffffff),
+          // backgroundColor: const Color(0xffffffff),
           canTapOnHeader: true,
           value: ctn[0],
           headerBuilder: (context, isExpanded) => Container(
@@ -53,7 +54,7 @@ class _AboutPageState extends State<AboutPage> {
                 fontWeight: FontWeight.w400,
                 fontStyle: FontStyle.normal,
                 fontSize: 16,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                color: colors.onPrimaryContainer,
               ),
             ),
           ),
@@ -67,7 +68,7 @@ class _AboutPageState extends State<AboutPage> {
                 fontWeight: FontWeight.w300,
                 fontStyle: FontStyle.normal,
                 fontSize: 14,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                color: colors.onPrimaryContainer,
               ),
             ),
           ),
@@ -97,9 +98,12 @@ class _AboutPageState extends State<AboutPage> {
         width: 86,
         height: 86,
         decoration: BoxDecoration(
-          color: const Color(0x00ffffff),
+          // color: Color(0x00ffffff),
           shape: BoxShape.circle,
-          border: Border.all(color: const Color(0x4d9e9e9e), width: 1),
+          border: Border.all(
+            color: colors.onSurfaceVariant,
+            width: 1,
+          ),
         ),
         child: SvgPicture.asset(
           "images/gearlock.svg",
@@ -108,8 +112,8 @@ class _AboutPageState extends State<AboutPage> {
           fit: BoxFit.contain,
         ),
       ),
-      const Padding(
-        padding: EdgeInsets.fromLTRB(0, 0, 0, 18),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 18),
         child: Text(
           "v7.4.3",
           textAlign: TextAlign.center,
@@ -118,7 +122,7 @@ class _AboutPageState extends State<AboutPage> {
             fontWeight: FontWeight.w400,
             fontStyle: FontStyle.normal,
             fontSize: 12,
-            color: Color(0xff7b7b7b),
+            color: colors.onSurfaceVariant,
           ),
         ),
       ),
@@ -132,7 +136,7 @@ class _AboutPageState extends State<AboutPage> {
             fontWeight: FontWeight.w300,
             fontStyle: FontStyle.normal,
             fontSize: 13,
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
+            color: colors.onPrimaryContainer,
           ),
         ),
       ),
@@ -151,7 +155,7 @@ class _AboutPageState extends State<AboutPage> {
                 fontWeight: FontWeight.w300,
                 fontStyle: FontStyle.normal,
                 fontSize: 12,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                color: colors.onSurfaceVariant,
               ),
             ),
             Text(
@@ -162,7 +166,7 @@ class _AboutPageState extends State<AboutPage> {
                 fontWeight: FontWeight.w500,
                 fontStyle: FontStyle.normal,
                 fontSize: 12,
-                color: Theme.of(context).colorScheme.primary,
+                color: colors.primary,
               ),
             ),
           ],
@@ -183,7 +187,7 @@ class _AboutPageState extends State<AboutPage> {
                 fontWeight: FontWeight.w300,
                 fontStyle: FontStyle.normal,
                 fontSize: 12,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                color: colors.onSurfaceVariant,
               ),
             ),
             Text(
@@ -194,7 +198,7 @@ class _AboutPageState extends State<AboutPage> {
                 fontWeight: FontWeight.w500,
                 fontStyle: FontStyle.normal,
                 fontSize: 12,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                color: colors.onPrimaryContainer,
               ),
             ),
           ],
@@ -223,7 +227,7 @@ class _AboutPageState extends State<AboutPage> {
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           fixedSize: Size(MediaQuery.of(context).size.width, 60),
-          foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+          foregroundColor: colors.onSurfaceVariant,
           shadowColor: Colors.transparent,
           alignment: Alignment.centerLeft,
           shape: const RoundedRectangleBorder(),
@@ -243,13 +247,13 @@ class _AboutPageState extends State<AboutPage> {
                   fontWeight: FontWeight.w400,
                   fontStyle: FontStyle.normal,
                   fontSize: 16,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  color: colors.onPrimaryContainer,
                 ),
               ),
             ),
-            const Icon(
+            Icon(
               Icons.launch,
-              color: Color(0xff6c6c6c),
+              color: colors.onSurfaceVariant,
               size: 18,
             ),
           ],
@@ -257,13 +261,13 @@ class _AboutPageState extends State<AboutPage> {
       ),
       ElevatedButton(
         onPressed: () => callbackAdd(
-          AppSettings(callbackAdd: callbackAdd, callGoBack: callGoBack),
+          AppPrefs(callbackAdd: callbackAdd, callGoBack: callGoBack),
         ),
         style: ElevatedButton.styleFrom(
           elevation: 0,
           padding: const EdgeInsets.all(16),
           fixedSize: Size(MediaQuery.of(context).size.width, 60),
-          foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+          foregroundColor: colors.onSurfaceVariant,
           shadowColor: Colors.transparent,
           shape: const RoundedRectangleBorder(),
         ),
@@ -280,12 +284,12 @@ class _AboutPageState extends State<AboutPage> {
                 fontWeight: FontWeight.w400,
                 fontStyle: FontStyle.normal,
                 fontSize: 16,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                color: colors.onPrimaryContainer,
               ),
             ),
-            const Icon(
+            Icon(
               Icons.settings,
-              color: Color(0xff6c6c6c),
+              color: colors.onSurfaceVariant,
               size: 18,
             ),
           ],
@@ -298,7 +302,7 @@ class _AboutPageState extends State<AboutPage> {
         style: ElevatedButton.styleFrom(
           elevation: 0,
           // fixedSize: Size(MediaQuery.of(context).size.width, 60),
-          foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+          foregroundColor: colors.onSurfaceVariant,
           shadowColor: Colors.transparent,
           alignment: Alignment.centerLeft,
           shape: const RoundedRectangleBorder(),
@@ -322,7 +326,7 @@ class _AboutPageState extends State<AboutPage> {
                     fontWeight: FontWeight.w400,
                     fontStyle: FontStyle.normal,
                     fontSize: 16,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    color: colors.onPrimaryContainer,
                   ),
                 ),
                 Text(
@@ -333,16 +337,15 @@ class _AboutPageState extends State<AboutPage> {
                     fontWeight: FontWeight.w300,
                     fontStyle: FontStyle.normal,
                     fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: colors.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
-            IconButton(
-              icon: const Icon(Icons.launch),
-              onPressed: () {},
-              color: const Color(0xff6c6c6c),
-              iconSize: 18,
+            Icon(
+              Icons.launch,
+              color: colors.onSurfaceVariant,
+              size: 18,
             ),
           ],
         ),

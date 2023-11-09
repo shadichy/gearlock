@@ -45,6 +45,8 @@ dependencies:
   google_fonts: ^4.0.3
   material_color_utilities: ^0.2.0
   dynamic_color: ^1.6.2
+  open_settings: ^2.0.2
+  shared_preferences: ^2.1.0
 
 dev_dependencies:
   flutter_test:

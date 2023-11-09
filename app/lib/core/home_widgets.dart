@@ -41,18 +41,18 @@ Widget headingText(String text, Color color) {
   );
 }
 
-Widget separaText(String text) {
+Widget separaText(String text, Color color) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(24, 8, 0, 0),
     child: Text(
       text,
       textAlign: TextAlign.start,
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
+      style: TextStyle(
         fontWeight: FontWeight.w300,
         fontStyle: FontStyle.normal,
         fontSize: 12,
-        color: Color(0xff929292),
+        color: color,
       ),
     ),
   );
@@ -62,12 +62,12 @@ Widget expandaBox(double padding, List<NoGapExpansionPanelRadio> children) {
   return NoGapExpansionPanelList.radio(
     elevation: 0,
     expandedHeaderPadding: EdgeInsets.all(padding),
-    dividerColor: const Color(0xffffffff),
+    dividerColor: Colors.transparent,
     children: children,
   );
 }
 
-Row textRow(String title, content) {
+Row textRow(String title, dynamic content, Color color) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.start,
     crossAxisAlignment: CrossAxisAlignment.center,
@@ -77,11 +77,11 @@ Row textRow(String title, content) {
         "$title: ",
         textAlign: TextAlign.start,
         overflow: TextOverflow.clip,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.w400,
           fontStyle: FontStyle.normal,
           fontSize: 14,
-          color: Color(0xff555555),
+          color: color,
         ),
       ),
       if (content is Widget) content
@@ -89,14 +89,14 @@ Row textRow(String title, content) {
   );
 }
 
-Widget baseTextBox(context, Row child) {
+Widget baseTextBox(BuildContext context, Row child) {
   return Container(
     margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
     padding: const EdgeInsets.all(0),
     width: MediaQuery.of(context).size.width,
     height: 50,
     decoration: const BoxDecoration(
-      color: Color(0x00000000),
+      color: Colors.transparent,
       shape: BoxShape.rectangle,
       borderRadius: BorderRadius.zero,
     ),
@@ -120,6 +120,7 @@ Widget simpleTextBox(BuildContext context, String title, String content) {
           color: Theme.of(context).colorScheme.onPrimaryContainer,
         ),
       ),
+      Theme.of(context).colorScheme.secondary,
     ),
   );
 }

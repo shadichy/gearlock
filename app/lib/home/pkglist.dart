@@ -39,6 +39,7 @@ class _PkgPreviewState extends State<PkgPreview> {
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme colors = Theme.of(context).colorScheme;
     return OpenContainer(
       closedBuilder: (context, closedF) => Container(
         height: 60,
@@ -57,7 +58,7 @@ class _PkgPreviewState extends State<PkgPreview> {
               decoration: BoxDecoration(
                 // color: const Color(0x00000000),
                 shape: BoxShape.circle,
-                border: Border.all(color: Theme.of(context).colorScheme.surfaceVariant, width: 1),
+                border: Border.all(color: colors.surfaceVariant, width: 1),
               ),
               child: appIcon,
             ),
@@ -79,7 +80,7 @@ class _PkgPreviewState extends State<PkgPreview> {
                         fontWeight: FontWeight.w600,
                         fontStyle: FontStyle.normal,
                         fontSize: 16,
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        color: colors.onPrimaryContainer,
                       ),
                     ),
                     Text(
@@ -90,7 +91,7 @@ class _PkgPreviewState extends State<PkgPreview> {
                         fontWeight: FontWeight.w300,
                         fontStyle: FontStyle.normal,
                         fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        color: colors.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -132,6 +133,7 @@ class _PkgListState extends State<PkgList> {
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme colors = Theme.of(context).colorScheme;
     List<Widget> body = [
       Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -146,7 +148,7 @@ class _PkgListState extends State<PkgList> {
               ),
               icon: Icon(
                 Icons.search,
-                color: Theme.of(context).colorScheme.primary,
+                color: colors.primary,
                 size: 28,
               ),
               splashRadius: 24,
@@ -155,14 +157,14 @@ class _PkgListState extends State<PkgList> {
               "${AppLocalizations.of(context)!.installedupper} ",
               AppLocalizations.of(context)!.packagesupper,
             ], [
-              Theme.of(context).colorScheme.onPrimaryContainer,
-              Theme.of(context).colorScheme.primary
+              colors.onPrimaryContainer,
+              colors.primary
             ]),
             IconButton(
               onPressed: () {},
               icon: Icon(
                 Icons.more_vert,
-                color: Theme.of(context).colorScheme.primary,
+                color: colors.primary,
                 size: 28,
               ),
               splashRadius: 24,
@@ -177,7 +179,7 @@ class _PkgListState extends State<PkgList> {
         leading: Icon(
           Icons.add,
           // onPressed: () {},
-          color: Theme.of(context).colorScheme.primary,
+          color: colors.primary,
           size: 24,
         ),
         title: Text(
@@ -188,7 +190,7 @@ class _PkgListState extends State<PkgList> {
             fontWeight: FontWeight.w600,
             fontStyle: FontStyle.normal,
             fontSize: 14,
-            color: Theme.of(context).colorScheme.primary,
+            color: colors.primary,
           ),
         ),
       ),

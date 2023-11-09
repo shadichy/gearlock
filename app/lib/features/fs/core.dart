@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gearlock/core/single_route.dart';
 import 'package:gearlock/features/fs/backup.dart';
 import 'package:gearlock/features/fs/restore.dart';
 import 'package:gearlock/features/fs/resize.dart';
@@ -25,6 +24,7 @@ class FsCore extends StatefulWidget {
 }
 
 class _FsCoreState extends State<FsCore> {
+  bool confirm = false;
   int _selectedTab = 0;
   List<int> lastVisited = [];
   @override
@@ -68,12 +68,11 @@ class _FsCoreState extends State<FsCore> {
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme colors = Theme.of(context).colorScheme;
     List<Widget> children = [
-      Container(),
-      Container(),
-      Container(),
+      SizedBox(),
       SizedBox(
-        height: 40,
+        height: MediaQuery.of(context).size.height - 30,
         child: PageTransitionSwitcher(
           transitionBuilder: (child, anim1, anim2) => FadeThroughTransition(
             animation: anim1,
@@ -85,6 +84,24 @@ class _FsCoreState extends State<FsCore> {
       ),
     ];
     return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        centerTitle: true,
+        title: const Text("Filesystem"),
+        leading: IconButton(
+          onPressed: () {
+            if (!confirm) {
+              confirm=true;
+            } else {
+              Navigator.of(context).pop();
+            }
+          },
+          icon: Icon(
+            Icons.arrow_back,
+            color: colors.primary,
+          ),
+        ),
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedTab,
         onDestinationSelected: _onItemTapped,

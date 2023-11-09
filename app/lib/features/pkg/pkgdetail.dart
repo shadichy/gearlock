@@ -47,7 +47,7 @@ class _PackageDetailState extends State<PackageDetail> {
           canTapOnHeader: true,
           value: title,
           headerBuilder: (context, isExpanded) => ListTile(
-            title: textRow(title, Null),
+            title: textRow(title, Null, Theme.of(context).colorScheme.secondary),
           ),
           body: ListTile(
             title: Text(

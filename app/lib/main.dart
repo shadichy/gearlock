@@ -1,31 +1,27 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:gearlock/core/theme.dart';
 import 'package:gearlock/home/about.dart';
 import 'package:gearlock/core/global_widgets.dart';
 import 'package:gearlock/home/home.dart';
 import 'package:gearlock/core/glnotfound.dart';
 import 'package:gearlock/home/pkglist.dart';
 import 'package:gearlock/home/sysinfo.dart';
+import 'package:gearlock/core/default_prefs.dart' as defaults;
 import 'package:animations/animations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-Color brandColor = Colors.blue;
-
-void main() {
-  String xarg = "/system/bin/sh";
-  // String xarg = "/gearlock/init-chroot";
-  bool hasGearLock =
-      Process.runSync('sh', ['-c', '[ -x "$xarg" ]']).exitCode == 0;
+void main() async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final brandColor = Color(prefs.getInt("appTheme") ?? defaults.color);
+  
+  bool hasGearLock = true;
+  // Process.runSync('sh', ['-c', '[ -x "/gearlock/init-chroot" ]']).exitCode == 0;
   WidgetsFlutterBinding.ensureInitialized();
-  const coreTheme = CoreTheme(
-    primaryColor: Color(0xff19686A),
-    tertiaryColor: Color(0xff386A20),
-    neutralColor: Color(0xff5D5F5A),
-  );
+
   runApp(
     MediaQuery(
       data: const MediaQueryData(),

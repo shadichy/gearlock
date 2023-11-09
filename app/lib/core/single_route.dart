@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 class SingleRoute extends StatefulWidget {
   final WillPopCallback? onPop;
+  final AppBar? appBar;
   final List<Widget> children;
   // final Widget? navBar;
   const SingleRoute({
     super.key,
     required this.children,
     this.onPop,
+    this.appBar,
     // this.navBar,
   });
 
@@ -16,14 +18,17 @@ class SingleRoute extends StatefulWidget {
 }
 
 class _SingleRouteState extends State<SingleRoute> {
-  late List<Widget> children;
-  late WillPopCallback? onPop;
+  late final List<Widget> children;
+  late final WillPopCallback? onPop;
+  late final AppBar? appBar;
+
   // late Widget? navBar;
   @override
   void initState() {
     super.initState();
     children = widget.children;
     onPop = widget.onPop ?? () async => true;
+    appBar = widget.appBar;
     // navBar = widget.navBar;
   }
 
@@ -32,6 +37,7 @@ class _SingleRouteState extends State<SingleRoute> {
     return Scaffold(
       // backgroundColor: const Color(0xffffffff),
       // bottomNavigationBar: navBar,
+      appBar: appBar,
       body: WillPopScope(
         onWillPop: onPop,
         child: ListView.builder(

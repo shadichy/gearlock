@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gearlock/core/global_widgets.dart';
 import 'package:gearlock/core/home_widgets.dart';
+import 'package:gearlock/core/theme.dart';
 import 'package:gearlock/features/devzone/devzone.dart';
 import 'package:gearlock/features/devzone/log.dart';
 import 'package:gearlock/features/google/core.dart';
@@ -87,7 +88,7 @@ class _BriefSysInfoState extends State<BriefSysInfo> {
           //     fontWeight: FontWeight.w500,
           //     fontStyle: FontStyle.normal,
           //     fontSize: 14,
-          //     // color: Theme.of(context).colorScheme.onTertiaryContainer,
+          //     // color: colors.onTertiaryContainer,
           //   ),
           // ),
         ],
@@ -120,6 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme colors = Theme.of(context).colorScheme;
     void Function() goto(StatefulWidget page) => () => Navigator.of(context)
         .push(MaterialPageRoute(builder: (context) => page));
     Widget homeActions(String header, List<GearAction> childItems) {
@@ -129,12 +131,12 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: childItems[i].pressed,
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.transparent,
-            // backgroundColor: Theme.of(context).colorScheme.surface,
-            // backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+            // backgroundColor: colors.surface,
+            // backgroundColor: colors.secondaryContainer,
             elevation: 0,
             padding: const EdgeInsets.all(8),
             minimumSize: Size(MediaQuery.of(context).size.width, 60),
-            foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+            foregroundColor: colors.onPrimaryContainer,
             shadowColor: Colors.transparent,
             alignment: Alignment.centerLeft,
             shape: RoundedRectangleBorder(
@@ -160,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontWeight: FontWeight.w600,
                 fontStyle: FontStyle.normal,
                 fontSize: 14,
-                // color: Theme.of(context).colorScheme.onSurface,
+                // color: colors.onSurface,
               ),
             ),
           ),
@@ -168,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
         // if (i == childItems.length - 1) break;
         // children.add(
         //   Divider(
-        //     color: Theme.of(context).colorScheme.outlineVariant,
+        //     color: colors.outlineVariant,
         //     height: 1,
         //     thickness: 1,
         //     indent: 8,
@@ -176,20 +178,21 @@ class _HomeScreenState extends State<HomeScreen> {
         //   ),
         // );
       }
+
       return Container(
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         padding: const EdgeInsets.all(16),
         width: MediaQuery.of(context).size.width,
         // alignment: Alignment.centerLeft,
         clipBehavior: Clip.hardEdge,
-        // color: Theme.of(context).colorScheme.onSurface,
+        // color: colors.onSurface,
         decoration: BoxDecoration(
           // color: const Color(0x00000000),
-          color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
+          color: colors.surfaceTint.withOpacity(0.05),
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(8.0),
           // border: Border.all(
-          // color: Theme.of(context).colorScheme.outlineVariant,
+          // color: colors.outlineVariant,
           // width: 1,
           // ),
         ),
@@ -204,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(
                 fontWeight: FontWeight.w300,
                 fontSize: 18,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                color: colors.onPrimaryContainer,
               ),
             ),
             const Divider(
@@ -226,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
         icon: Icon(
           Icons.android,
           size: 32,
-          color: Theme.of(context).colorScheme.onPrimaryContainer,
+          color: colors.onPrimaryContainer,
         ),
       ),
       BriefSysInfo(
@@ -239,7 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
         icon: Icon(
           Icons.tag,
           size: 32,
-          color: Theme.of(context).colorScheme.onPrimaryContainer,
+          color: colors.onPrimaryContainer,
         ),
       ),
       BriefSysInfo(
@@ -248,7 +251,7 @@ class _HomeScreenState extends State<HomeScreen> {
         icon: ImageIcon(
           const AssetImage("images/gearlock.png"),
           size: 32,
-          color: Theme.of(context).colorScheme.onPrimaryContainer,
+          color: colors.onPrimaryContainer,
         ),
       ),
     ];
@@ -257,19 +260,14 @@ class _HomeScreenState extends State<HomeScreen> {
     for (var i = 0; i < sysInfoRaw.length; i++) {
       sysInfo.add(sysInfoRaw[i]);
       if (i == sysInfoRaw.length - 1) break;
-      sysInfo.add(
-        const Divider(
-          color: Color(0x00ffffff),
-          height: 4,
-          thickness: 0,
-          indent: 0,
-          endIndent: 0,
-        ),
-      );
+      sysInfo.add(const Divider(
+        color: Colors.transparent,
+        height: 4,
+        thickness: 0,
+        indent: 0,
+        endIndent: 0,
+      ));
     }
-
-    String colorCode(Color color) =>
-        color.value.toRadixString(16).substring(2, 8);
 
     List<Widget> body = [
       Padding(
@@ -280,30 +278,26 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisSize: MainAxisSize.max,
           children: [
             IconButton(
-              onPressed: () => callbackAdd(AppSettings(
+              onPressed: () => callbackAdd(AppPrefs(
                 callbackAdd: callbackAdd,
                 callGoBack: callGoBack,
               )),
               icon: Icon(
                 Icons.settings,
-                color: Theme.of(context).colorScheme.primary,
+                color: colors.primary,
                 size: 28,
               ),
               splashRadius: 24,
             ),
-            topText([
-              "GEAR",
-              "LOCK"
-            ], [
-              Theme.of(context).colorScheme.onPrimaryContainer,
-              Theme.of(context).colorScheme.primary
-            ]),
+            topText(
+                ["GEAR", "LOCK"], [colors.onPrimaryContainer, colors.primary]),
             IconButton(
               onPressed: goto(const ThemeSelector()),
-              icon: SvgPicture.string(
-                '<svg viewBox="0 0 24 24"><path d="M0 12A12 12 0 0112 0a12 12 0 0112 12H12z" fill="#${colorCode(Theme.of(context).colorScheme.primaryContainer)}"/><path d="M12 24a12 12 0 01-8.485-3.515A12 12 0 010 12h12z" fill="#${colorCode(Theme.of(context).colorScheme.tertiaryContainer)}"/><path d="M24 12a12 12 0 01-12 12V12z" fill="#${colorCode(Theme.of(context).colorScheme.primary)}"/></svg>',
-                width: 28,
-                height: 28,
+              icon: SvgGen(
+                primary: colors.primary,
+                container: colors.primaryContainer,
+                tertiary: colors.tertiaryContainer,
+                size: 28,
               ),
               splashRadius: 24,
             ),
@@ -328,11 +322,11 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(12),
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primaryContainer,
+          color: colors.primaryContainer,
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(8.0),
           // border: Border.all(
-          //   color: Theme.of(context).colorScheme.outlineVariant,
+          //   color: colors.outlineVariant,
           //   width: 1,
           // ),
         ),
@@ -345,7 +339,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       headingText(
         AppLocalizations.of(context)!.quickactions,
-        Theme.of(context).colorScheme.primary,
+        colors.primary,
       ),
       // separaText(AppLocalizations.of(context)!.packages),
       homeActions(AppLocalizations.of(context)!.packages, [

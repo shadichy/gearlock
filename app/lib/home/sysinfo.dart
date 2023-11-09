@@ -16,12 +16,13 @@ import 'package:gearlock/features/systemmask/ram.dart';
 import 'package:gearlock/settings/settings.dart';
 import 'package:gearlock/settings/update.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:open_settings/open_settings.dart';
 
 final Map<String, dynamic> _colc = jsonDecode(
   Process.runSync("/data/local/tmp/gstatus-json", []).stdout,
 );
 
-class Prop {
+class Prop extends StatelessWidget {
   final String name;
   final dynamic value;
   final void Function()? onTap;
@@ -30,6 +31,42 @@ class Prop {
     required this.value,
     this.onTap,
   });
+
+  @override
+  Widget build(BuildContext context) {
+    ColorScheme colors = Theme.of(context).colorScheme;
+    return ListTile(
+      onTap: onTap,
+      title: Text(
+        name,
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontStyle: FontStyle.normal,
+          fontSize: 14,
+          color: colors.onPrimaryContainer,
+        ),
+        textAlign: TextAlign.start,
+      ),
+      subtitle: Text(
+        value.toString(),
+        style: TextStyle(
+          fontWeight: FontWeight.w400,
+          fontStyle: FontStyle.normal,
+          fontSize: 14,
+          color: colors.onSurfaceVariant,
+        ),
+        overflow: TextOverflow.clip,
+        textAlign: TextAlign.start,
+      ),
+      dense: true,
+      // isThreeLine: true,
+      visualDensity: const VisualDensity(vertical: 0),
+      // contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+      selected: false,
+      // selectedTileColor: const Color(0x42000000),
+    );
+  }
 }
 
 // /gearlock/gstatus-json
@@ -63,95 +100,51 @@ class _SysInfoScreenState extends State<SysInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme colors = Theme.of(context).colorScheme;
+    AppLocalizations? transl = AppLocalizations.of(context);
     void Function() goto(StatefulWidget page) => () => Navigator.of(context)
         .push(MaterialPageRoute(builder: (context) => page));
-    Widget infoTextBox(String header, List<Prop> content) {
-      List<Widget> txtbx = [];
-      for (var i = 0; i < content.length; i++) {
-        txtbx.add(ListTile(
-          onTap: content[i].onTap,
-          // shape: RoundedRectangleBorder(
-          //     borderRadius: i == 0
-          //         ? const BorderRadius.only(
-          //             topLeft: Radius.circular(8), topRight: Radius.circular(8))
-          //         : (i == content.length - 1)
-          //             ? const BorderRadius.only(
-          //                 bottomLeft: Radius.circular(8),
-          //                 bottomRight: Radius.circular(8))
-          //             : BorderRadius.zero),
-          // tileColor: const Color(0x00000000),
-          title: Text(
-            content[i].name,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontStyle: FontStyle.normal,
-              fontSize: 14,
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
-            ),
-            textAlign: TextAlign.start,
+    Widget infoTextBox(String header, List<Prop> content) => Container(
+          // margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          padding: const EdgeInsets.all(16),
+          width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(
+            // color: colors.surfaceTint.withOpacity(0.05),
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(8.0),
+            // border: Border.all(color: const Color(0x4d9e9e9e), width: 1),
           ),
-          subtitle: Text(
-            content[i].value.toString(),
-            style: TextStyle(
-              fontWeight: FontWeight.w400,
-              fontStyle: FontStyle.normal,
-              fontSize: 14,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            overflow: TextOverflow.clip,
-            textAlign: TextAlign.start,
-          ),
-          dense: true,
-          // isThreeLine: true,
-          visualDensity: const VisualDensity(vertical: 0),
-          // contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-          selected: false,
-          // selectedTileColor: const Color(0x42000000),
-        ));
-      }
-      return Container(
-        // margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        padding: const EdgeInsets.all(16),
-        width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-          // color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
-          shape: BoxShape.rectangle,
-          borderRadius: BorderRadius.circular(8.0),
-          // border: Border.all(color: const Color(0x4d9e9e9e), width: 1),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Row(
-              children: [
-                Text(
-                  header,
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w300,
-                    fontSize: 18,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    header,
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w300,
+                      fontSize: 18,
+                      color: colors.onPrimaryContainer,
+                    ),
                   ),
-                ),
-                Expanded(
-                    child: Divider(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  indent: 8,
-                ))
-              ],
-            ),
-            const Divider(
-              color: Colors.transparent,
-              height: 8,
-            ),
-            ...txtbx
-          ],
-        ),
-      );
-    }
+                  Expanded(
+                      child: Divider(
+                    color: colors.onPrimaryContainer,
+                    indent: 8,
+                  ))
+                ],
+              ),
+              const Divider(
+                color: Colors.transparent,
+                height: 8,
+              ),
+              ...content
+            ],
+          ),
+        );
 
     List<Widget> body = [
       Padding(
@@ -163,27 +156,27 @@ class _SysInfoScreenState extends State<SysInfoScreen> {
           children: [
             IconButton(
               onPressed: () => callbackAdd(
-                AppSettings(callbackAdd: callbackAdd, callGoBack: callGoBack),
+                AppPrefs(callbackAdd: callbackAdd, callGoBack: callGoBack),
               ),
               icon: Icon(
                 Icons.settings,
-                color: Theme.of(context).colorScheme.primary,
+                color: colors.primary,
                 size: 28,
               ),
               splashRadius: 24,
             ),
             topText([
-              AppLocalizations.of(context)!.systemupper,
-              " ${AppLocalizations.of(context)!.infoupper}"
+              transl!.systemupper,
+              " ${transl.infoupper}"
             ], [
-              Theme.of(context).colorScheme.onPrimaryContainer,
-              Theme.of(context).colorScheme.primary
+              colors.onPrimaryContainer,
+              colors.primary
             ]),
             IconButton(
               onPressed: () {},
               icon: Icon(
                 Icons.more_vert,
-                color: Theme.of(context).colorScheme.primary,
+                color: colors.primary,
                 size: 28,
               ),
               splashRadius: 24,
@@ -193,147 +186,153 @@ class _SysInfoScreenState extends State<SysInfoScreen> {
       ),
       infoTextBox("GearLock", [
         Prop(
-          name: AppLocalizations.of(context)!.gearlockver,
+          name: transl.gearlockver,
           value: _colc['gearlock']?['version'],
           onTap: goto(updater),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.gearbootver,
+          name: transl.gearbootver,
           value: _colc['gearlock']?['gearboot'],
           onTap: goto(updater),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.gearpropver,
+          name: transl.gearpropver,
           value: _colc['gearlock']?['gearprop'],
           onTap: goto(updater),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.appver,
+          name: transl.appver,
           value: appVer,
           onTap: goto(updater),
         ),
       ]),
       infoTextBox("Android", [
         Prop(
-          name: AppLocalizations.of(context)!.androidver,
+          name: transl.androidver,
           value: _colc['android']?['release'],
+          onTap: () => OpenSettings.openDeviceInfoSetting(),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.sdklevel,
+          name: transl.sdklevel,
           value: _colc['android']?['sdkInt'],
+          onTap: () => OpenSettings.openDeviceInfoSetting(),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.buildno,
+          name: transl.buildno,
           value: _colc['android']?['buildNo'],
+          onTap: () => OpenSettings.openDeviceInfoSetting(),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.suhandler,
+          name: transl.suhandler,
           value: _colc['android']?['suHandler'],
           onTap: goto(suhandler),
         ),
         if (_colc['android']?['suVer'] != null)
           Prop(
-            name: AppLocalizations.of(context)!.suver,
+            name: transl.suver,
             value: _colc['android']?['suVer'],
             onTap: goto(suhandler),
           ),
         Prop(
-          name: AppLocalizations.of(context)!.gmsprovider,
+          name: transl.gmsprovider,
           value: _colc['android']?['gmsPrvd'],
           onTap: goto(const GoogleStats()),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.macaddress,
+          name: transl.macaddress,
           value: _colc['android']?['mac'],
           onTap: goto(const FakeMAC()),
         ),
         if (_colc['android']?['armLayer'] != null)
           Prop(
-            name: AppLocalizations.of(context)!.nativebridge,
+            name: transl.nativebridge,
             value: _colc['android']?['armLayer'],
           ),
         if (_colc['android']?['armType'] != null)
           Prop(
-            name: AppLocalizations.of(context)!.gamingprotocol,
+            name: transl.gamingprotocol,
             value: _colc['android']?['armType'],
           ),
       ]),
-      infoTextBox(AppLocalizations.of(context)!.graphics, [
+      infoTextBox(transl.graphics, [
         Prop(
-          name: AppLocalizations.of(context)!.resolution,
+          name: transl.resolution,
           value: _colc['graphics']?['resolution'],
           onTap: goto(const ChangeResolution()),
         ),
         Prop(
           name: "DPI",
           value: _colc['graphics']?['dpi'],
+          onTap: () => OpenSettings.openDisplaySetting(),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.glvendor,
+          name: transl.glvendor,
           value: _colc['graphics']?['glVendor'],
           onTap: goto(fakegl),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.glrenderer,
+          name: transl.glrenderer,
           value: _colc['graphics']?['glRenderer'],
           onTap: goto(fakegl),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.glver,
+          name: transl.glver,
           value: _colc['graphics']?['glVersion'],
           onTap: goto(fakegl),
         ),
       ]),
-      infoTextBox(AppLocalizations.of(context)!.kernel, [
+      infoTextBox(transl.kernel, [
         Prop(
-          name: AppLocalizations.of(context)!.kernelver,
+          name: transl.kernelver,
           value: _colc['kernel']?['version'],
+          onTap: () => OpenSettings.openDeviceInfoSetting(),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.buildinfo,
+          name: transl.buildinfo,
           value: _colc['kernel']?['build'],
+          onTap: () => OpenSettings.openDeviceInfoSetting(),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.arch,
+          name: transl.arch,
           value: _colc['kernel']?['arch'],
         ),
         Prop(
-          name: AppLocalizations.of(context)!.uptime,
+          name: transl.uptime,
           value: _colc['kernel']?['uptime'],
         ),
       ]),
-      infoTextBox(AppLocalizations.of(context)!.devicespec, [
+      infoTextBox(transl.devicespec, [
         Prop(
           name: "CPU",
           value: _colc['cpu']?['name'],
           onTap: goto(fakecpu),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.cpuarch,
+          name: transl.cpuarch,
           value: _colc['cpu']?['arch'],
         ),
         Prop(
-          name: AppLocalizations.of(context)!.cpuvendor,
+          name: transl.cpuvendor,
           value: _colc['cpu']?['vendor'],
           onTap: goto(fakecpu),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.cpucores,
+          name: transl.cpucores,
           value: _colc['cpu']?['cores'],
           onTap: goto(fakecpu),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.cpufreqr,
+          name: transl.cpufreqr,
           value: _colc['cpu']?['freqRange'],
           onTap: goto(changefreqgov),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.currcpugov,
+          name: transl.currcpugov,
           value: _colc['cpu']?['governor'],
           onTap: goto(changefreqgov),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.availcpugov,
+          name: transl.availcpugov,
           value: _colc['cpu']?['gvnrs'],
           onTap: goto(changefreqgov),
         ),
@@ -343,7 +342,7 @@ class _SysInfoScreenState extends State<SysInfoScreen> {
           onTap: goto(fakegl),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.gpuvendor,
+          name: transl.gpuvendor,
           value: _colc['gpu']?['vendor'],
           onTap: goto(fakegl),
         ),
@@ -353,16 +352,17 @@ class _SysInfoScreenState extends State<SysInfoScreen> {
           onTap: goto(const FakeRAM()),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.intermem,
+          name: transl.intermem,
           value: _colc['storage'],
           onTap: goto(const FsCore(mode: FsPageMode.backup)),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.model,
+          name: transl.model,
           value: _colc['model'],
+          onTap: () => OpenSettings.openDeviceInfoSetting(),
         ),
         Prop(
-          name: AppLocalizations.of(context)!.biosmode,
+          name: transl.biosmode,
           value: _colc['boot'],
         ),
       ]),

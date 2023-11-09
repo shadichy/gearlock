@@ -20,7 +20,6 @@ class _NoGearLockState extends State<NoGearLock> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffffffff),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -40,22 +39,22 @@ class _NoGearLockState extends State<NoGearLock> {
               AppLocalizations.of(context)!.nogearlock,
               textAlign: TextAlign.center,
               overflow: TextOverflow.clip,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontStyle: FontStyle.normal,
                 fontSize: 16,
-                color: Color(0xff303f9f),
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             subtitle: Text(
               AppLocalizations.of(context)!.plsinstall,
               textAlign: TextAlign.center,
               overflow: TextOverflow.clip,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w300,
                 fontStyle: FontStyle.normal,
                 fontSize: 12,
-                color: Color(0xff929292),
+                color: Theme.of(context).colorScheme.secondary,
               ),
             ),
           )
